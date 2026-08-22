@@ -1,25 +1,35 @@
-import { Bell, MapPin } from 'lucide-react-native';
-import { Text, View } from 'react-native';
+import { router } from 'expo-router';
+import { ChevronRight, Settings } from 'lucide-react-native';
+import { Text, TouchableOpacity, View } from 'react-native';
 
-import { Avatar } from '@/components/ui/Avatar';
-import { IconButton } from '@/components/ui/IconButton';
 import { colors } from '@/constants/colors';
 
 export function HomeHeader() {
   return (
-    <View className="flex-row items-center justify-between">
-      <View className="flex-1">
-        <Text className="text-sm font-medium text-slate-500">Good afternoon</Text>
-        <Text className="mt-1 text-3xl font-bold text-healthcare-900">SaúdeLink</Text>
-        <View className="mt-3 flex-row items-center gap-2">
-          <MapPin color={colors.primaryRed} size={16} />
-          <Text className="text-sm font-semibold text-slate-600">Luanda, Angola</Text>
-        </View>
+    <View className="flex-row items-center justify-between pt-2 pb-2">
+      <View>
+        <Text className="text-3xl font-nunito-bold text-brand-red tracking-tighter">
+          SAÚDELINK
+        </Text>
+        <TouchableOpacity className="flex-row items-center gap-0.5 mt-0.5">
+          <Text className="text-sm font-nunito-extrabold text-slate-800">
+            Nacional
+          </Text>
+          <View className="w-4 h-4 rounded-full bg-slate-900 justify-center items-center ml-1">
+            <ChevronRight size={10} color="#FFFFFF" strokeWidth={3} />
+          </View>
+        </TouchableOpacity>
       </View>
-      <View className="flex-row items-center gap-3">
-        <IconButton icon={Bell} color={colors.blue700} />
-        <Avatar name="Ana Paulo" />
-      </View>
+
+      <TouchableOpacity
+        onPress={() => router.push('/(app)/(tabs)/settings')}
+        className="w-10 h-10 items-center justify-center active:opacity-60"
+      >
+        <Settings size={32} color={colors.textDark} strokeWidth={2} />
+      </TouchableOpacity>
     </View>
   );
 }
+
+
+

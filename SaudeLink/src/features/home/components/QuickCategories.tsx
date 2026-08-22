@@ -1,7 +1,6 @@
+import { Ambulance, Stethoscope } from 'lucide-react-native';
 import { Pressable, Text, View } from 'react-native';
 
-import { categories } from '@/data/categories';
-import { cn } from '@/lib/cn';
 import { HospitalNeed } from '@/types/hospital';
 
 interface QuickCategoriesProps {
@@ -10,36 +9,49 @@ interface QuickCategoriesProps {
 }
 
 export function QuickCategories({ selected, onSelect }: QuickCategoriesProps) {
-  return (
-    <View className="gap-3">
-      <View className="flex-row items-center justify-between">
-        <Text className="text-base font-semibold text-slate-900">Quick access</Text>
-        {selected ? (
-          <Text className="text-sm font-semibold text-brand-red" onPress={() => onSelect(null)}>
-            Clear
-          </Text>
-        ) : null}
-      </View>
-      <View className="flex-row flex-wrap gap-3">
-        {categories.slice(0, 4).map((category) => {
-          const Icon = category.icon;
-          const isSelected = selected === category.id;
+  const isEmergencySelected = selected === 'emergency';
+  const isConsultingSelected = selected === 'pediatrics';
 
-          return (
-            <Pressable
-              key={category.id}
-              className={cn(
-                'min-h-20 flex-1 basis-[46%] justify-between rounded-2xl border p-4',
-                isSelected ? 'border-brand-red bg-brand-red-light' : 'border-slate-200 bg-white',
-              )}
-              onPress={() => onSelect(isSelected ? null : category.id)}
-            >
-              <Icon color={isSelected ? '#D9232E' : '#155E8A'} size={23} />
-              <Text className={cn('mt-3 text-sm font-semibold', isSelected ? 'text-brand-red-dark' : 'text-slate-800')}>{category.label}</Text>
-            </Pressable>
-          );
-        })}
+  return (
+    <View className="gap-4 mb-4">
+      {/* 2 Top Featured Cards like Yango */}
+      <View className="flex-row gap-4">
+        {/* Card 1: Emergência */}
+        <View className="flex-1">
+          <Pressable
+            onPress={() => onSelect(isEmergencySelected ? null : 'emergency')}
+            className={`w-full aspect-[1.15] rounded-3xl items-center justify-center border active:opacity-95 ${
+              isEmergencySelected
+                ? 'bg-red-50 border-brand-red'
+                : 'bg-[#EAEAEA]/80 border-transparent'
+            }`}
+          >
+            <Ambulance size={54} color={isEmergencySelected ? '#D9232E' : '#2A2A2A'} strokeWidth={1.5} />
+          </Pressable>
+          <Text className="mt-2 text-sm font-nunito-bold text-slate-800 text-center">
+            Emergência
+          </Text>
+        </View>
+
+        {/* Card 2: Consultas */}
+        <View className="flex-1">
+          <Pressable
+            onPress={() => onSelect(isConsultingSelected ? null : 'pediatrics')}
+            className={`w-full aspect-[1.15] rounded-3xl items-center justify-center border active:opacity-95 ${
+              isConsultingSelected
+                ? 'bg-red-50 border-brand-red'
+                : 'bg-[#EAEAEA]/80 border-transparent'
+            }`}
+          >
+            <Stethoscope size={54} color={isConsultingSelected ? '#D9232E' : '#2A2A2A'} strokeWidth={1.5} />
+          </Pressable>
+          <Text className="mt-2 text-sm font-nunito-bold text-slate-800 text-center" numberOfLines={1}>
+            Consultas <Text className="font-nunito text-xs text-slate-500">• a partir de 10 min.</Text>
+          </Text>
+        </View>
       </View>
     </View>
   );
 }
+
+

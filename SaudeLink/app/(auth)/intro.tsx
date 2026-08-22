@@ -232,7 +232,7 @@ export default function IntroScreen() {
             Cuidados de saúde ao alcance de todos
           </Text>
           <Text className="text-base font-nunito text-slate-500 text-center leading-6 px-2">
-            Encontra hospitais, clínicas e serviços {'\n'}de saúde perto de ti, de forma rápida e clara.
+            Encontra hospitais, clínicas e serviços {'\n'}de saúde perto de si, de forma rápida e clara.
           </Text>
         </View>
 
@@ -251,7 +251,7 @@ export default function IntroScreen() {
           className="bg-healthcare-50 rounded-full border-brand-red border-[1px] py-4 items-center active:opacity-90"
         >
           <Text className="text-base font-nunito-bold text-brand-red tracking-wide">
-            Começar Agora
+            Criar Conta
           </Text>
         </Pressable>
       </Animated.View>

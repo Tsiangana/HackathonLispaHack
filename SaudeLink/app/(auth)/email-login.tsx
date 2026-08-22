@@ -41,7 +41,7 @@ export default function EmailLoginScreen() {
 
   // Countdown timer for OTP resend
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let interval: ReturnType<typeof setInterval> | undefined;
     if (step === 2 && resendTimer > 0) {
       interval = setInterval(() => {
         setResendTimer((prev) => {
@@ -53,7 +53,11 @@ export default function EmailLoginScreen() {
         });
       }, 1000);
     }
-    return () => clearInterval(interval);
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
   }, [step, resendTimer]);
 
   const animateTransition = (nextStep: 1 | 2) => {
@@ -310,7 +314,9 @@ export default function EmailLoginScreen() {
                           }`}
                         >
                           <TextInput
-                            ref={(el) => (inputRefs.current[index] = el)}
+                            ref={(el) => {
+                              inputRefs.current[index] = el;
+                            }}
                             value={otp[index]}
                             onChangeText={(val) => handleOtpChange(val, index)}
                             onKeyPress={(e) => handleOtpKeyPress(e, index)}
@@ -389,4 +395,3 @@ export default function EmailLoginScreen() {
     </SafeAreaView>
   );
 }
-

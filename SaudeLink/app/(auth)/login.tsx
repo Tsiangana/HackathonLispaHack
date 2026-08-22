@@ -214,7 +214,7 @@ export default function LoginScreen() {
               Bem-vindo ao SaúdeLink
             </Text>
             <Text className="text-base font-nunito text-slate-500 text-center leading-6 px-2">
-              Cria uma conta para encontrar serviços de saúde perto de ti de forma rápida.
+              Cria uma conta para encontrar serviços de saúde perto de si de forma rápida.
             </Text>
           </Animated.View>
 

@@ -5,16 +5,23 @@ import { Hospital } from '@/types/hospital';
 
 export function RecommendedHospitals({ hospitals }: { hospitals: Hospital[] }) {
   return (
-    <View className="gap-3">
-      <Text className="text-base font-semibold text-slate-900">Recommended for you</Text>
+    <View className="gap-0 mb-4">
       {hospitals.length ? (
-        hospitals.slice(0, 2).map((hospital) => <HospitalCard key={hospital.id} hospital={hospital} />)
+        hospitals.slice(0, 3).map((hospital) => (
+          <HospitalCard key={hospital.id} hospital={hospital} />
+        ))
       ) : (
-        <View className="rounded-2xl border border-slate-200 bg-white p-5">
-          <Text className="text-base font-semibold text-slate-900">No hospitals found</Text>
-          <Text className="mt-1 text-sm text-slate-500">Try searching for another hospital or healthcare service.</Text>
+        <View className="rounded-2xl border border-slate-200 bg-white p-5 items-center">
+          <Text className="text-base font-nunito-bold text-slate-900 text-center">
+            Nenhum hospital encontrado
+          </Text>
+          <Text className="mt-1 text-xs font-nunito text-slate-500 text-center">
+            Tenta pesquisar por outro nome ou selecionar uma especialidade.
+          </Text>
         </View>
       )}
     </View>
   );
 }
+
+

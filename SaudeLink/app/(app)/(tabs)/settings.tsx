@@ -1,5 +1,5 @@
 import { Bell, ChevronRight, Globe, Info, LogOut, MapPin, Shield, User } from 'lucide-react-native';
-import { Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { router } from 'expo-router';
 
 import { Header } from '@/components/layout/Header';
@@ -25,10 +25,14 @@ function SettingsRow({ icon: Icon, label, value }: { icon: typeof User; label: s
 }
 
 export default function SettingsScreen() {
+  const handleLogout = () => {
+    router.replace('/(auth)/intro');
+  };
+
   return (
     <SafeArea>
       <Screen>
-        <Header title="Settings" subtitle="Manage your local MVP preferences" />
+        <Header title="Definições" subtitle="Gere o teu perfil e preferências do SaúdeLink" />
         <View className="mb-6 flex-row items-center gap-4 rounded-2xl border border-slate-200 bg-white p-4">
           <Avatar name="Ana Paulo" />
           <View className="flex-1">
@@ -37,28 +41,32 @@ export default function SettingsScreen() {
           </View>
         </View>
         <View className="rounded-2xl border border-slate-200 bg-white px-4">
-          <SettingsRow icon={User} label="Profile" value="Account" />
+          <SettingsRow icon={User} label="Perfil" value="Conta do Utilizador" />
           <Divider />
-          <SettingsRow icon={Bell} label="Notifications" value="Urgent care updates" />
+          <SettingsRow icon={Bell} label="Notificações" value="Alertas de cuidados urgentes" />
           <Divider />
-          <SettingsRow icon={MapPin} label="Location" value="Luanda, Angola" />
+          <SettingsRow icon={MapPin} label="Localização" value="Luanda, Angola" />
           <Divider />
-          <SettingsRow icon={Globe} label="Language" value="English" />
+          <SettingsRow icon={Globe} label="Idioma" value="Português" />
         </View>
         <View className="mt-5 rounded-2xl border border-slate-200 bg-white px-4">
-          <SettingsRow icon={Info} label="About SaúdeLink" />
+          <SettingsRow icon={Info} label="Sobre o SaúdeLink" />
           <Divider />
-          <SettingsRow icon={Shield} label="Terms and Privacy" />
+          <SettingsRow icon={Shield} label="Termos e Privacidade" />
         </View>
-        <View className="mt-5 rounded-2xl border border-red-100 bg-white px-4">
-          <View className="flex-row items-center gap-3 py-4" onTouchEnd={() => router.replace('/(auth)/login')}>
+        <View className="mt-5 rounded-2xl border border-red-100 bg-white px-4 overflow-hidden">
+          <Pressable
+            onPress={handleLogout}
+            className="flex-row items-center gap-3 py-4 active:opacity-70"
+          >
             <View className="h-10 w-10 items-center justify-center rounded-xl bg-brand-red-light">
               <LogOut color={colors.primaryRed} size={20} />
             </View>
-            <Text className="flex-1 text-sm font-semibold text-brand-red">Logout</Text>
-          </View>
+            <Text className="flex-1 text-sm font-bold text-brand-red">Terminar Sessão</Text>
+          </Pressable>
         </View>
       </Screen>
     </SafeArea>
   );
 }
+
