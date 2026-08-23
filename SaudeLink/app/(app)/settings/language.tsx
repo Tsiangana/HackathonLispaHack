@@ -1,0 +1,85 @@
+import { router } from 'expo-router';
+import { ArrowLeft, Check, Globe } from 'lucide-react-native';
+import { useState } from 'react';
+import { ScrollView, StatusBar, Text, TouchableOpacity, View } from 'react-native';
+
+import { SafeArea } from '@/components/layout/SafeArea';
+
+const LANGUAGES = [
+  { id: 'pt-ao', name: 'Português (Angola)', flag: '🇦🇴', code: 'PT-AO' },
+  { id: 'pt-pt', name: 'Português (Portugal)', flag: '🇵🇹', code: 'PT-PT' },
+  { id: 'en-us', name: 'English (United States)', flag: '🇺🇸', code: 'EN-US' },
+  { id: 'fr-fr', name: 'Français (France)', flag: '🇫🇷', code: 'FR-FR' },
+  { id: 'umb', name: 'Umbundu (Angola)', flag: '🇦🇴', code: 'UMB' },
+  { id: 'kmb', name: 'Kimbundu (Angola)', flag: '🇦🇴', code: 'KMB' },
+];
+
+export default function LanguageSettingsScreen() {
+  const [selectedId, setSelectedId] = useState('pt-ao');
+
+  return (
+    <SafeArea>
+      <StatusBar barStyle="dark-content" />
+
+      {/* ── Header ── */}
+      <View className="flex-row items-center justify-between px-5 pt-3 pb-4 bg-white border-b border-slate-100">
+        <View className="flex-row items-center gap-3">
+          <TouchableOpacity
+            onPress={() => router.back()}
+            className="w-10 h-10 rounded-full bg-slate-100 items-center justify-center active:bg-slate-200"
+          >
+            <ArrowLeft size={20} color="#0F172A" strokeWidth={2.5} />
+          </TouchableOpacity>
+          <View>
+            <Text className="text-xl font-nunito-extrabold text-slate-900">
+              Idioma da Aplicação
+            </Text>
+            <Text className="text-xs font-nunito text-slate-500">
+              Idioma preferencial de navegação
+            </Text>
+          </View>
+        </View>
+
+        <View className="w-9 h-9 rounded-full bg-indigo-50 items-center justify-center">
+          <Globe size={20} color="#4F46E5" strokeWidth={2.5} />
+        </View>
+      </View>
+
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: 40, gap: 16 }}
+      >
+        <View className="bg-white rounded-3xl border border-slate-200/80 overflow-hidden shadow-xs">
+          {LANGUAGES.map((lang) => {
+            const isSelected = selectedId === lang.id;
+            return (
+              <TouchableOpacity
+                key={lang.id}
+                onPress={() => setSelectedId(lang.id)}
+                className="flex-row items-center justify-between p-4 border-b border-slate-100 last:border-b-0 active:bg-slate-50"
+              >
+                <View className="flex-row items-center gap-3 flex-1">
+                  <Text className="text-2xl">{lang.flag}</Text>
+                  <View className="flex-1">
+                    <Text className="text-sm font-nunito-extrabold text-slate-900">
+                      {lang.name}
+                    </Text>
+                    <Text className="text-xs font-nunito text-slate-400">
+                      {lang.code}
+                    </Text>
+                  </View>
+                </View>
+
+                {isSelected && (
+                  <View className="w-6 h-6 rounded-full bg-brand-red items-center justify-center">
+                    <Check size={14} color="#FFFFFF" strokeWidth={3} />
+                  </View>
+                )}
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+      </ScrollView>
+    </SafeArea>
+  );
+}
