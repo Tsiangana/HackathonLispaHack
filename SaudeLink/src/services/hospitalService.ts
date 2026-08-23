@@ -1,4 +1,5 @@
 import { hospitals as mockHospitals } from '@/data/hospitals';
+import { supabase } from '@/lib/supabase';
 import { Hospital } from '@/types/hospital';
 
 /**
@@ -17,6 +18,164 @@ export function calculateDistance(lat1: number, lon1: number, lat2: number, lon2
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return Math.round(R * c * 10) / 10;
 }
+
+// ============================================================
+// SUPABASE TYPES
+// Shape returned by the nested select query
+// ============================================================
+
+interface SupabaseFacilityService {
+  is_available: boolean;
+  services: {
+    id: string;
+    name: string;
+    slug: string;
+  } | null;
+}
+
+interface SupabaseFacility {
+  id: string;
+  name: string;
+  address: string;
+  latitude: number;
+  longitude: number;
+  phone: string | null;
+  rating: number;
+  is_open: boolean;
+  emergency_available: boolean;
+  image_url: string | null;
+  facility_services: SupabaseFacilityService[];
+}
+
+// ============================================================
+// MAPPER — Supabase → Hospital frontend contract
+// ============================================================
+
+export function mapSupabaseFacilityToHospital(facility: SupabaseFacility): Hospital {
+  // Build services string array from related services names
+  const services: string[] = (facility.facility_services ?? [])
+    .filter((fs) => fs.is_available && fs.services !== null)
+    .map((fs) => fs.services!.name);
+
+  // Build resources boolean map from slugs
+  const slugMap: Record<string, boolean> = {};
+  for (const fs of facility.facility_services ?? []) {
+    if (fs.services?.slug) {
+      slugMap[fs.services.slug] = fs.is_available;
+    }
+  }
+
+  const resources: Hospital['resources'] = {
+    emergency:  slugMap['emergency']  ?? false,
+    pharmacy:   slugMap['pharmacy']   ?? false,
+    laboratory: slugMap['laboratory'] ?? false,
+    maternity:  slugMap['maternity']  ?? false,
+    pediatrics: slugMap['pediatrics'] ?? false,
+    imaging:    slugMap['imaging']    ?? false,
+  };
+
+  return {
+    id:                 facility.id,
+    name:               facility.name,
+    address:            facility.address,
+    latitude:           facility.latitude,
+    longitude:          facility.longitude,
+    phone:              facility.phone ?? '',
+    rating:             Number(facility.rating),
+    isOpen:             facility.is_open,
+    emergencyAvailable: facility.emergency_available,
+    image:              facility.image_url ?? undefined,
+    distance:           undefined,      // calculated separately via geolocation
+    services,
+    resources,
+  };
+}
+
+// ============================================================
+// PRIMARY SOURCE — Supabase
+// ============================================================
+
+/**
+ * Fetches all health facilities from Supabase, including their
+ * associated services and availability status.
+ * Requires an authenticated session (RLS policy: authenticated).
+ */
+export async function getHospitalsFromSupabase(): Promise<Hospital[]> {
+  const { data, error } = await supabase
+    .from('health_facilities')
+    .select(`
+      id,
+      name,
+      address,
+      latitude,
+      longitude,
+      phone,
+      rating,
+      is_open,
+      emergency_available,
+      image_url,
+      facility_services (
+        is_available,
+        services (
+          id,
+          name,
+          slug
+        )
+      )
+    `)
+    .order('name', { ascending: true });
+
+  if (error) {
+    throw error;
+  }
+
+  const facilities = (data ?? []) as unknown as SupabaseFacility[];
+  return facilities.map(mapSupabaseFacilityToHospital);
+}
+
+/**
+ * Fetches a single health facility by its UUID.
+ * Returns null if the facility is not found (no row), throws on network/RLS error.
+ */
+export async function getHospitalByIdFromSupabase(id: string): Promise<Hospital | null> {
+  const { data, error } = await supabase
+    .from('health_facilities')
+    .select(`
+      id,
+      name,
+      address,
+      latitude,
+      longitude,
+      phone,
+      rating,
+      is_open,
+      emergency_available,
+      image_url,
+      facility_services (
+        is_available,
+        services (
+          id,
+          name,
+          slug
+        )
+      )
+    `)
+    .eq('id', id)
+    .maybeSingle();
+
+  if (error) {
+    throw error;
+  }
+
+  if (!data) return null;
+
+  return mapSupabaseFacilityToHospital(data as unknown as SupabaseFacility);
+}
+
+
+// ============================================================
+// FALLBACK IMAGES (used by Google/OSM path)
+// ============================================================
 
 const HEALTHCARE_IMAGES = [
   'https://images.unsplash.com/photo-1586773860418-d37222d8fce3?w=500&q=80',

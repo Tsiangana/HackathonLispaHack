@@ -1,6 +1,7 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { Clock, MapPin, Phone, Star } from 'lucide-react-native';
-import { Text, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { ActivityIndicator, Text, View } from 'react-native';
 
 import { HospitalResources } from '@/components/hospital/HospitalResources';
 import { HospitalServices } from '@/components/hospital/HospitalServices';
@@ -10,19 +11,71 @@ import { Screen } from '@/components/layout/Screen';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { colors } from '@/constants/colors';
-import { hospitals } from '@/data/hospitals';
+import { getHospitalByIdFromSupabase } from '@/services/hospitalService';
+import { Hospital } from '@/types/hospital';
 import { formatDistance, formatRating } from '@/utils/format';
 
 export default function HospitalDetailsScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const hospital = hospitals.find((item) => item.id === id);
+  const [hospital, setHospital] = useState<Hospital | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
 
-  if (!hospital) {
+  useEffect(() => {
+    if (!id) {
+      setNotFound(true);
+      setIsLoading(false);
+      return;
+    }
+
+    let isMounted = true;
+
+    async function loadHospital() {
+      try {
+        const data = await getHospitalByIdFromSupabase(id);
+        if (isMounted) {
+          if (data) {
+            setHospital(data);
+          } else {
+            setNotFound(true);
+          }
+        }
+      } catch (err) {
+        console.error('[HospitalDetails] Failed to load hospital:', err);
+        if (isMounted) setNotFound(true);
+      } finally {
+        if (isMounted) setIsLoading(false);
+      }
+    }
+
+    loadHospital();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [id]);
+
+  if (isLoading) {
     return (
       <SafeArea>
         <Screen>
-          <Header title="Hospital not found" onBack={() => router.back()} />
-          <Text className="text-sm text-slate-500">We could not find this hospital in the MVP data.</Text>
+          <Header title="A carregar…" onBack={() => router.back()} />
+          <View className="flex-1 items-center justify-center">
+            <ActivityIndicator size="large" color={colors.blue500} />
+          </View>
+        </Screen>
+      </SafeArea>
+    );
+  }
+
+  if (notFound || !hospital) {
+    return (
+      <SafeArea>
+        <Screen>
+          <Header title="Unidade não encontrada" onBack={() => router.back()} />
+          <Text className="text-sm text-slate-500">
+            Não foi possível encontrar esta unidade de saúde.
+          </Text>
         </Screen>
       </SafeArea>
     );
@@ -48,8 +101,14 @@ export default function HospitalDetailsScreen() {
             </View>
           </View>
           <View className="mt-4 flex-row flex-wrap gap-2">
-            <Badge label={hospital.emergencyAvailable ? 'Emergency available' : 'No emergency'} tone={hospital.emergencyAvailable ? 'green' : 'slate'} />
-            <Badge label={hospital.isOpen ? 'Accepting patients' : 'Check before going'} tone={hospital.isOpen ? 'blue' : 'yellow'} />
+            <Badge
+              label={hospital.emergencyAvailable ? 'Emergency available' : 'No emergency'}
+              tone={hospital.emergencyAvailable ? 'green' : 'slate'}
+            />
+            <Badge
+              label={hospital.isOpen ? 'Accepting patients' : 'Check before going'}
+              tone={hospital.isOpen ? 'blue' : 'yellow'}
+            />
           </View>
         </View>
         <View className="rounded-2xl border border-slate-200 bg-white p-4">
