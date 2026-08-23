@@ -20,6 +20,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { colors } from '@/constants/colors';
+import { supabase } from '@/lib/supabase';
 
 export default function EmailLoginScreen() {
   const [step, setStep] = useState<1 | 2>(1);
@@ -90,14 +91,28 @@ export default function EmailLoginScreen() {
     });
   };
 
-  const handleContinueEmail = () => {
+  const handleContinueEmail = async () => {
     if (!email || !email.includes('@')) {
       setEmailError('Por favor insere um endereço de email válido.');
       return;
     }
+
     setEmailError('');
+
+    const { error } = await supabase.auth.signInWithOtp({
+      email: email.trim().toLowerCase(),
+    });
+
+    if (error) {
+      setEmailError(error.message);
+      return;
+    }
+
+    setOtp(Array(OTP_LENGTH).fill(''));
+    setOtpError('');
     setResendTimer(30);
     setCanResend(false);
+
     animateTransition(2);
   };
 
@@ -135,8 +150,18 @@ export default function EmailLoginScreen() {
     }
   };
 
-  const handleResendCode = () => {
+  const handleResendCode = async () => {
     if (!canResend) return;
+
+    const { error } = await supabase.auth.signInWithOtp({
+      email: email.trim().toLowerCase(),
+    });
+
+    if (error) {
+      setOtpError(error.message);
+      return;
+    }
+
     setOtp(Array(OTP_LENGTH).fill(''));
     setResendTimer(30);
     setCanResend(false);
@@ -144,13 +169,27 @@ export default function EmailLoginScreen() {
     inputRefs.current[0]?.focus();
   };
 
-  const handleVerifyOtp = () => {
+  const handleVerifyOtp = async () => {
     const fullOtp = otp.join('');
+
     if (fullOtp.length < OTP_LENGTH) {
       setOtpError('Por favor preenche todos os 6 dígitos do código.');
       return;
     }
-    // Success -> Navigate into app
+
+    setOtpError('');
+
+    const { error } = await supabase.auth.verifyOtp({
+      email: email.trim().toLowerCase(),
+      token: fullOtp,
+      type: 'email',
+    });
+
+    if (error) {
+      setOtpError('Código inválido ou expirado.');
+      return;
+    }
+
     router.replace('/(app)/(tabs)');
   };
 
@@ -174,7 +213,7 @@ export default function EmailLoginScreen() {
                 if (step === 2) {
                   animateTransition(1);
                 } else {
-                  router.back();
+                  router.replace('/(auth)/intro');
                 }
               }}
               className="w-12 h-12 rounded-full bg-white border border-slate-200 items-center justify-center active:bg-slate-100"
@@ -184,14 +223,12 @@ export default function EmailLoginScreen() {
 
             <View className="flex-row items-center gap-1.5">
               <View
-                className={`h-2 rounded-full ${
-                  step === 1 ? 'w-6 bg-brand-red' : 'w-2 bg-slate-300'
-                }`}
+                className={`h-2 rounded-full ${step === 1 ? 'w-6 bg-brand-red' : 'w-2 bg-slate-300'
+                  }`}
               />
               <View
-                className={`h-2 rounded-full ${
-                  step === 2 ? 'w-6 bg-brand-red' : 'w-2 bg-slate-300'
-                }`}
+                className={`h-2 rounded-full ${step === 2 ? 'w-6 bg-brand-red' : 'w-2 bg-slate-300'
+                  }`}
               />
             </View>
           </View>
@@ -224,13 +261,12 @@ export default function EmailLoginScreen() {
                     Endereço de Email
                   </Text>
                   <View
-                    className={`flex-row items-center bg-white rounded-2xl border-[1.5px] px-4 h-14 ${
-                      emailError
-                        ? 'border-red-500'
-                        : emailFocused
+                    className={`flex-row items-center bg-white rounded-2xl border-[1.5px] px-4 h-14 ${emailError
+                      ? 'border-red-500'
+                      : emailFocused
                         ? 'border-brand-red'
                         : 'border-slate-200'
-                    }`}
+                      }`}
                   >
                     <Mail
                       size={20}
@@ -305,13 +341,12 @@ export default function EmailLoginScreen() {
                       return (
                         <View
                           key={index}
-                          className={`flex-1 h-14 rounded-2xl bg-white border-[1.5px] items-center justify-center ${
-                            isFocused
-                              ? 'border-brand-red bg-red-50/20'
-                              : hasValue
+                          className={`flex-1 h-14 rounded-2xl bg-white border-[1.5px] items-center justify-center ${isFocused
+                            ? 'border-brand-red bg-red-50/20'
+                            : hasValue
                               ? 'border-slate-400'
                               : 'border-slate-200'
-                          }`}
+                            }`}
                         >
                           <TextInput
                             ref={(el) => {
@@ -367,9 +402,8 @@ export default function EmailLoginScreen() {
                 {/* Verify & Enter Button */}
                 <Pressable
                   onPress={handleVerifyOtp}
-                  className={`rounded-full py-4 items-center active:opacity-90 ${
-                    isOtpComplete ? 'bg-brand-red' : 'bg-brand-red/80'
-                  }`}
+                  className={`rounded-full py-4 items-center active:opacity-90 ${isOtpComplete ? 'bg-brand-red' : 'bg-brand-red/80'
+                    }`}
                 >
                   <Text className="text-base font-nunito-bold text-white tracking-wide">
                     Confirmar e Entrar

@@ -1,4 +1,7 @@
 import { router } from 'expo-router';
+import * as Linking from 'expo-linking';
+import * as WebBrowser from 'expo-web-browser';
+import type { Provider } from '@supabase/supabase-js';
 import {
   Activity,
   ArrowLeft,
@@ -21,6 +24,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Path } from 'react-native-svg';
 
 import { colors } from '@/constants/colors';
+import { supabase } from '@/lib/supabase';
+
+WebBrowser.maybeCompleteAuthSession();
 
 // Google SVG Icon component from user specification
 function GoogleIcon({ size = 20 }: { size?: number }) {
@@ -138,6 +144,45 @@ export default function LoginScreen() {
   const slideUp = useRef(new Animated.Value(30)).current;
   const fadeIn = useRef(new Animated.Value(0)).current;
 
+  const extractParamsFromUrl = (url: string) => {
+    const hash = url.split('#')[1];
+    if (!hash) return null;
+    return hash.split('&').reduce((acc, current) => {
+      const [key, value] = current.split('=');
+      acc[key] = value;
+      return acc;
+    }, {} as Record<string, string>);
+  };
+
+  const handleOAuthLogin = async (provider: Provider) => {
+    try {
+      const redirectUrl = Linking.createURL('/(auth)/login');
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo: redirectUrl,
+        },
+      });
+
+      if (error) throw error;
+
+      if (data?.url) {
+        const result = await WebBrowser.openAuthSessionAsync(data.url, redirectUrl);
+        if (result.type === 'success' && result.url) {
+          const tokens = extractParamsFromUrl(result.url);
+          if (tokens?.access_token && tokens?.refresh_token) {
+            await supabase.auth.setSession({
+              access_token: tokens.access_token,
+              refresh_token: tokens.refresh_token,
+            });
+          }
+        }
+      }
+    } catch (err) {
+      console.error(`${provider} login error:`, err);
+    }
+  };
+
   useEffect(() => {
     Animated.parallel([
       Animated.timing(slideUp, {
@@ -166,7 +211,7 @@ export default function LoginScreen() {
           {/* Top Header with Back Navigation */}
           <View className="flex-row items-center justify-between h-10 mb-2">
             <TouchableOpacity
-              onPress={() => router.back()}
+              onPress={() => router.replace('/(auth)/intro')}
               className="w-12 h-12 rounded-full bg-white border border-slate-200 items-center justify-center active:bg-slate-100"
             >
               <ArrowLeft size={20} color={colors.textDark} strokeWidth={2} />
@@ -239,7 +284,7 @@ export default function LoginScreen() {
 
             {/* Secondary — Google Login (using exact Google SVG) */}
             <Pressable
-              onPress={() => {}}
+              onPress={() => handleOAuthLogin('google')}
               className="flex-row items-center justify-center gap-3 bg-white border border-slate-200 rounded-full py-4 px-5 active:bg-slate-50"
             >
               <GoogleIcon size={20} />
@@ -250,7 +295,7 @@ export default function LoginScreen() {
 
             {/* Secondary — Facebook Login (using exact Facebook SVG) */}
             <Pressable
-              onPress={() => {}}
+              onPress={() => handleOAuthLogin('facebook')}
               className="flex-row items-center justify-center gap-3 bg-white border border-slate-200 rounded-full py-4 px-5 active:bg-slate-50"
             >
               <FacebookIcon size={20} />

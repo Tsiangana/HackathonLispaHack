@@ -24,9 +24,16 @@ function SettingsRow({ icon: Icon, label, value }: { icon: typeof User; label: s
   );
 }
 
+import { supabase } from '@/lib/supabase';
+
 export default function SettingsScreen() {
-  const handleLogout = () => {
-    router.replace('/(auth)/intro');
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut();
+      router.replace('/(auth)/intro');
+    } catch (error) {
+      console.error('Erro ao terminar sessão:', error);
+    }
   };
 
   return (

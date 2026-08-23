@@ -14,6 +14,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { colors } from '@/constants/colors';
 
+import { supabase } from '@/lib/supabase';
+
 export default function RegisterScreen() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -24,23 +26,44 @@ export default function RegisterScreen() {
   const [emailFocused, setEmailFocused] = useState(false);
   const [passwordFocused, setPasswordFocused] = useState(false);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleRegister = () => {
+  const handleRegister = async () => {
     if (!name.trim()) {
       setError('Por favor introduz o teu nome completo.');
       return;
     }
+
     if (!email || !email.includes('@')) {
       setError('Por favor introduz um email válido.');
       return;
     }
+
     if (!password || password.length < 6) {
       setError('A password deve ter pelo menos 6 caracteres.');
       return;
     }
 
     setError('');
-    router.replace('/(app)/(tabs)');
+
+    const { data, error: signUpError } = await supabase.auth.signUp({
+      email: email.trim().toLowerCase(),
+      password,
+      options: {
+        data: {
+          full_name: name.trim(),
+        },
+      },
+    });
+
+    if (signUpError) {
+      setError(signUpError.message);
+      return;
+    }
+
+    console.log('Supabase user created:', data.user);
+
+    router.replace('/(auth)/email-login');
   };
 
   return (
@@ -57,7 +80,7 @@ export default function RegisterScreen() {
           {/* Header navigation bar */}
           <View className="flex-row items-center justify-between h-12 mb-4">
             <TouchableOpacity
-              onPress={() => router.back()}
+              onPress={() => router.replace('/(auth)/intro')}
               className="w-12 h-12 rounded-full bg-white border border-slate-200 items-center justify-center active:bg-slate-100"
             >
               <ArrowLeft size={20} color={colors.textDark} strokeWidth={2} />
@@ -82,9 +105,8 @@ export default function RegisterScreen() {
                 Nome Completo
               </Text>
               <View
-                className={`flex-row items-center bg-white rounded-2xl border-[1.5px] px-4 h-14 ${
-                  nameFocused ? 'border-brand-red' : 'border-slate-200'
-                }`}
+                className={`flex-row items-center bg-white rounded-2xl border-[1.5px] px-4 h-14 ${nameFocused ? 'border-brand-red' : 'border-slate-200'
+                  }`}
               >
                 <User
                   size={20}
@@ -112,9 +134,8 @@ export default function RegisterScreen() {
                 Endereço de Email
               </Text>
               <View
-                className={`flex-row items-center bg-white rounded-2xl border-[1.5px] px-4 h-14 ${
-                  emailFocused ? 'border-brand-red' : 'border-slate-200'
-                }`}
+                className={`flex-row items-center bg-white rounded-2xl border-[1.5px] px-4 h-14 ${emailFocused ? 'border-brand-red' : 'border-slate-200'
+                  }`}
               >
                 <Mail
                   size={20}
@@ -145,9 +166,8 @@ export default function RegisterScreen() {
                 Password
               </Text>
               <View
-                className={`flex-row items-center bg-white rounded-2xl border-[1.5px] px-4 h-14 ${
-                  passwordFocused ? 'border-brand-red' : 'border-slate-200'
-                }`}
+                className={`flex-row items-center bg-white rounded-2xl border-[1.5px] px-4 h-14 ${passwordFocused ? 'border-brand-red' : 'border-slate-200'
+                  }`}
               >
                 <Lock
                   size={20}
@@ -190,10 +210,12 @@ export default function RegisterScreen() {
           {/* Submit Button */}
           <Pressable
             onPress={handleRegister}
+            disabled={loading}
             className="bg-brand-red rounded-full py-4 items-center active:opacity-90 mb-6"
+            style={{ opacity: loading ? 0.6 : 1 }}
           >
             <Text className="text-base font-nunito-bold text-white tracking-wide">
-              Criar Conta
+              {loading ? 'A criar conta...' : 'Criar Conta'}
             </Text>
           </Pressable>
 

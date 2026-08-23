@@ -31,6 +31,7 @@ import 'react-native-reanimated';
 
 import '../global.css';
 import { colors } from '@/constants/colors';
+import { AuthProvider, useAuth } from '@/context/AuthContext';
 
 export const unstable_settings = {
   initialRouteName: 'index',
@@ -74,12 +75,15 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <ThemeProvider value={theme}>
-        <Stack screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="index" />
-          <Stack.Screen name="(auth)" />
-          <Stack.Screen name="(app)" />
-          <Stack.Screen name="+not-found" />
-        </Stack>
+        <AuthProvider>
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="index" />
+            <Stack.Screen name="(auth)" />
+            <Stack.Screen name="(app)" />
+            <Stack.Screen name="+not-found" />
+          </Stack>
+        </AuthProvider>
+
         <StatusBar style="dark" />
       </ThemeProvider>
     </GestureHandlerRootView>
