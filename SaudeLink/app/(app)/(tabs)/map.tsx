@@ -1,34 +1,52 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { StatusBar, View } from 'react-native';
 
 import { YangoHospitalMap } from '@/components/map/YangoHospitalMap';
-import { hospitals } from '@/data/hospitals';
+import { useHospitalsState } from '@/features/hospitals/hooks/useHospitals';
 import { Hospital } from '@/types/hospital';
 
 export default function MapScreen() {
-  const params = useLocalSearchParams<{ symptom?: string; hospitalId?: string }>();
+  const params = useLocalSearchParams<{ symptom?: string; hospitalId?: string; autoRoute?: string }>();
   const symptomParam = params.symptom ? String(params.symptom) : undefined;
   const hospitalIdParam = params.hospitalId ? String(params.hospitalId) : undefined;
+  const autoRouteParam = params.autoRoute === 'true';
 
-  const initialHospital = useMemo(() => {
+  const { hospitals: realHospitals, isLoading } = useHospitalsState();
+  const [selectedHospital, setSelectedHospital] = useState<Hospital | null>(null);
+
+  useEffect(() => {
+    if (hospitalIdParam && realHospitals.length > 0) {
+      const match = realHospitals.find((h) => h.id === hospitalIdParam);
+      if (match) {
+        setSelectedHospital(match);
+      }
+    }
+  }, [hospitalIdParam, realHospitals]);
+
+  const activeSelectedHospital = useMemo(() => {
+    if (selectedHospital) return selectedHospital;
     if (hospitalIdParam) {
-      const match = hospitals.find((h) => h.id === hospitalIdParam);
+      const match = realHospitals.find((h) => h.id === hospitalIdParam);
       if (match) return match;
     }
-    return hospitals[0];
-  }, [hospitalIdParam]);
+    return realHospitals[0];
+  }, [selectedHospital, hospitalIdParam, realHospitals]);
 
-  const [selectedHospital, setSelectedHospital] = useState<Hospital>(initialHospital);
+  if (!activeSelectedHospital) {
+    return null;
+  }
 
   return (
-    <View className="flex-1 bg-slate-900">
+    <View className="flex-1 bg-slate-100">
       <StatusBar barStyle="dark-content" />
       <YangoHospitalMap
         symptom={symptomParam}
-        hospitals={hospitals}
-        selectedHospital={selectedHospital}
+        hospitals={realHospitals}
+        selectedHospital={activeSelectedHospital}
         onSelectHospital={setSelectedHospital}
+        autoRoute={autoRouteParam}
+        isLoading={isLoading}
         onBack={() => {
           if (router.canGoBack()) {
             router.back();

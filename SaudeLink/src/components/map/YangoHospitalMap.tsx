@@ -6,6 +6,7 @@ import { Platform, TouchableOpacity, View } from 'react-native';
 import Svg, { Circle, Line, Path, Rect } from 'react-native-svg';
 
 import { HospitalBottomSheet } from '@/components/hospital/HospitalBottomSheet';
+import { MapLoadingOverlay } from '@/components/map/MapLoadingOverlay';
 import { Hospital } from '@/types/hospital';
 
 export interface YangoHospitalMapProps {
@@ -14,6 +15,8 @@ export interface YangoHospitalMapProps {
   selectedHospital: Hospital;
   onSelectHospital: (hospital: Hospital) => void;
   onBack: () => void;
+  autoRoute?: boolean;
+  isLoading?: boolean;
 }
 
 const DEFAULT_LOCATION = { latitude: -8.8383, longitude: 13.2344 };
@@ -24,6 +27,8 @@ export function YangoHospitalMap({
   selectedHospital,
   onSelectHospital,
   onBack,
+  autoRoute,
+  isLoading,
 }: YangoHospitalMapProps) {
   const sheetRef = useRef<BottomSheet>(null);
   const [userLocation, setUserLocation] = useState(DEFAULT_LOCATION);
@@ -62,13 +67,14 @@ export function YangoHospitalMap({
     sheetRef.current?.snapToIndex(0);
   }
 
-  // Interactive OpenStreetMap HTML string for Web centered closely on User
+  // Interactive OpenStreetMap HTML string for Web — fits all hospitals + user
   const leafletHtml = useMemo(() => {
     const hospitalsJson = JSON.stringify(
       hospitals.map((h) => ({
         id: h.id,
         name: h.name,
         address: h.address,
+        emergencyAvailable: h.emergencyAvailable,
         lat: h.latitude,
         lng: h.longitude,
         isSelected: h.id === selectedHospital.id,
@@ -84,51 +90,92 @@ export function YangoHospitalMap({
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
         <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
         <style>
-          html, body, #map { width: 100%; height: 100%; margin: 0; padding: 0; background: #e5e3df; font-family: system-ui, -apple-system, sans-serif; }
-          .user-pulse-pin {
-            width: 24px; height: 24px; background: #10b981; border: 3px solid #ffffff; border-radius: 50%;
-            box-shadow: 0 0 0 8px rgba(16,185,129,0.3); animation: pulse 2s infinite;
+          html, body, #map { width: 100%; height: 100%; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+
+          /* User — animated pulsing green dot */
+          .user-pulse-outer {
+            width: 48px; height: 48px; border-radius: 50%;
+            background: rgba(16,185,129,0.18); display: flex; align-items: center; justify-content: center;
+            animation: aura 2.2s ease-out infinite;
           }
-          @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6); }
-            70% { box-shadow: 0 0 0 14px rgba(16, 185, 129, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+          .user-pulse-inner {
+            width: 22px; height: 22px; border-radius: 50%;
+            background: #10b981; border: 3px solid #ffffff;
+            box-shadow: 0 2px 8px rgba(16,185,129,0.6);
           }
-          .hosp-icon-pin {
-            width: 36px; height: 36px; background: #ffffff; border: 2px solid #cbd5e1; border-radius: 12px;
-            display: flex; align-items: center; justify-content: center; font-size: 18px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.18); cursor: pointer; transition: transform 0.15s ease;
+          @keyframes aura {
+            0%   { transform: scale(0.8); opacity: 0.9; }
+            50%  { transform: scale(1.15); opacity: 0.4; }
+            100% { transform: scale(0.8); opacity: 0.9; }
           }
-          .hosp-icon-pin:hover { transform: scale(1.15); }
-          .hosp-icon-pin.active { background: #ef4444; border-color: #ffffff; color: #ffffff; box-shadow: 0 4px 14px rgba(239,68,68,0.5); transform: scale(1.1); }
+
+          /* Hospital icon pin */
+          .hosp-pin {
+            display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer;
+          }
+          .hosp-pin-icon {
+            width: 40px; height: 40px; border-radius: 14px;
+            background: #ffffff; border: 2px solid #e2e8f0;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.14);
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+          }
+          .hosp-pin-icon svg { width: 22px; height: 22px; }
+          .hosp-pin-icon:hover { transform: scale(1.12); box-shadow: 0 6px 20px rgba(0,0,0,0.2); }
+          .hosp-pin-icon.active {
+            background: #D9232E; border-color: #ffffff;
+            box-shadow: 0 4px 18px rgba(217,35,46,0.45); transform: scale(1.1);
+          }
+          .hosp-pin-dot {
+            width: 6px; height: 6px; border-radius: 50%; background: #94a3b8;
+          }
+          .hosp-pin-dot.active { background: #D9232E; }
         </style>
       </head>
       <body>
         <div id="map"></div>
         <script>
           const userLoc = [${userLocation.latitude}, ${userLocation.longitude}];
-          const map = L.map('map', { zoomControl: false }).setView(userLoc, 15);
+          const map = L.map('map', { zoomControl: false });
 
           L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '© OpenStreetMap'
+            maxZoom: 19, attribution: '© OpenStreetMap'
           }).addTo(map);
 
-          // Glowing Pulsing User Pin Marker
-          const userIcon = L.divIcon({ className: 'user-pulse-pin', iconSize: [24, 24], iconAnchor: [12, 12] });
+          /* User marker */
+          const userIcon = L.divIcon({
+            className: '',
+            html: '<div class="user-pulse-outer"><div class="user-pulse-inner"></div></div>',
+            iconSize: [48, 48], iconAnchor: [24, 24]
+          });
           L.marker(userLoc, { icon: userIcon }).addTo(map);
 
-          // Clean Hospital Icon Pins (No Text Labels)
+          /* Hospital SVG cross icon (red cross inside white rounded square) */
+          const crossSvg = (isActive) => isActive
+            ? '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/></svg>'
+            : '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5v14M5 12h14" stroke="#D9232E" stroke-width="2.5" stroke-linecap="round"/></svg>';
+
           const list = ${hospitalsJson};
+          const allLatLngs = [userLoc, ...list.map(h => [h.lat, h.lng])];
+
           list.forEach(h => {
             const isSel = h.isSelected;
             const icon = L.divIcon({
-              className: 'custom-hosp-icon',
-              html: \`<div class="hosp-icon-pin \${isSel ? 'active' : ''}">🏥</div>\`,
-              iconAnchor: [18, 18]
+              className: '',
+              html: \`<div class="hosp-pin">
+                <div class="hosp-pin-icon \${isSel ? 'active' : ''}">\${crossSvg(isSel)}</div>
+                <div class="hosp-pin-dot \${isSel ? 'active' : ''}"></div>
+              </div>\`,
+              iconSize: [40, 50], iconAnchor: [20, 48]
             });
-            L.marker([h.lat, h.lng], { icon }).addTo(map);
+            L.marker([h.lat, h.lng], { icon })
+              .addTo(map)
+              .bindTooltip(h.name, { permanent: false, direction: 'top', className: 'leaflet-tooltip' });
           });
+
+          /* Auto-fit bounds to show user + all hospitals */
+          const bounds = L.latLngBounds(allLatLngs);
+          map.fitBounds(bounds, { padding: [60, 60] });
         </script>
       </body>
       </html>
@@ -136,7 +183,7 @@ export function YangoHospitalMap({
   }, [hospitals, selectedHospital, userLocation]);
 
   return (
-    <View className="flex-1 bg-slate-900">
+    <View className="flex-1 bg-slate-100">
       {/* ── Interactive Web Map Canvas ── */}
       <View className="flex-1 bg-[#EBECE9] relative overflow-hidden">
         {Platform.OS === 'web' ? (
@@ -184,6 +231,9 @@ export function YangoHospitalMap({
         </TouchableOpacity>
       </View>
 
+      {/* ── Loading Overlay ── */}
+      {isLoading && <MapLoadingOverlay onCancel={onBack} />}
+
       {/* ── Interactive Draggable Hospital Bottom Sheet ── */}
       <HospitalBottomSheet
         sheetRef={sheetRef}
@@ -192,6 +242,7 @@ export function YangoHospitalMap({
         onSelectHospital={onSelectHospital}
         symptom={symptom}
         onStartRoute={handleRecenter}
+        autoRoute={autoRoute}
       />
     </View>
   );

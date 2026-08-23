@@ -4,19 +4,26 @@ import {
   Heart,
   HeartPulse,
   Hospital,
+  Phone,
   Pill,
   Stethoscope,
   Thermometer,
+  X,
 } from 'lucide-react-native';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   Animated,
+  Linking,
+  Modal,
   Pressable,
   StatusBar,
   Text,
+  TouchableOpacity,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
+const CALL_CENTER_NUMBER = '+244 928 636 896';
 
 // 7-Bubble configuration with comfortable spacing matching the reference image:
 // 1. Center (Yellow), 2. Top (Blue), 3. Top-Right (Teal), 4. Right (Peach), 5. Bottom (Green), 6. Bottom-Left (Pink), 7. Left (Red)
@@ -159,6 +166,12 @@ export default function IntroScreen() {
   const slideUp = useRef(new Animated.Value(60)).current;
   const fadeIn = useRef(new Animated.Value(0)).current;
   const skipFade = useRef(new Animated.Value(0)).current;
+  const [showCallModal, setShowCallModal] = useState(false);
+
+  const handleCallCenter = () => {
+    setShowCallModal(false);
+    Linking.openURL(`tel:${CALL_CENTER_NUMBER.replace(/\s/g, '')}`);
+  };
 
   useEffect(() => {
     Animated.parallel([
@@ -247,6 +260,15 @@ export default function IntroScreen() {
         </Pressable>
 
         <Pressable
+          onPress={() => setShowCallModal(true)}
+          className="bg-[#2196C7] rounded-full mb-3 py-4 items-center active:opacity-90"
+        >
+          <Text className="text-base font-nunito-bold text-white tracking-wide">
+            Call Center
+          </Text>
+        </Pressable>
+
+        <Pressable
           onPress={() => router.push('/(auth)/login')}
           className="bg-healthcare-50 rounded-full border-brand-red border-[1px] py-4 items-center active:opacity-90"
         >
@@ -255,6 +277,80 @@ export default function IntroScreen() {
           </Text>
         </Pressable>
       </Animated.View>
+
+      {/* ── Call Center Confirmation Modal ── */}
+      <Modal
+        visible={showCallModal}
+        transparent
+        animationType="fade"
+        statusBarTranslucent
+        onRequestClose={() => setShowCallModal(false)}
+      >
+        <Pressable
+          className="flex-1 bg-black/40 items-center justify-end pb-6 px-4"
+          onPress={() => setShowCallModal(false)}
+        >
+          <Pressable
+            onPress={(e) => e.stopPropagation()}
+            className="w-full bg-white rounded-3xl overflow-hidden"
+          >
+            {/* Modal Header */}
+            <View className="px-6 pt-6 pb-4 flex-row items-start justify-between">
+              <View className="flex-1 pr-4">
+                <Text className="text-lg font-nunito-extrabold text-slate-900 leading-6 mb-1">
+                  Ligar para o Call Center?
+                </Text>
+                <Text className="text-sm font-nunito text-slate-500 leading-5">
+                  Será ligado para um operador do SaúdeLink que o pode auxiliar com urgências e encaminhamentos.
+                </Text>
+              </View>
+              <TouchableOpacity
+                onPress={() => setShowCallModal(false)}
+                className="w-8 h-8 rounded-full bg-slate-100 items-center justify-center mt-0.5"
+              >
+                <X size={16} color="#475569" strokeWidth={2.5} />
+              </TouchableOpacity>
+            </View>
+
+            {/* Number display */}
+            <View className="mx-6 mb-5 bg-slate-50 rounded-2xl px-4 py-3.5 flex-row items-center gap-3 border border-slate-100">
+              <View className="w-9 h-9 rounded-xl bg-[#2196C7]/10 items-center justify-center">
+                <Phone size={17} color="#2196C7" strokeWidth={2.2} />
+              </View>
+              <View>
+                <Text className="text-[11px] font-nunito-bold text-slate-400 uppercase tracking-wide">
+                  Número do Call Center
+                </Text>
+                <Text className="text-base font-nunito-extrabold text-slate-900">
+                  {CALL_CENTER_NUMBER}
+                </Text>
+              </View>
+            </View>
+
+            {/* Action Buttons */}
+            <View className="px-6 pb-6 gap-3">
+              <Pressable
+                onPress={handleCallCenter}
+                className="bg-[#2196C7] rounded-2xl py-4 items-center active:opacity-90 flex-row justify-center gap-2"
+              >
+                <Phone size={16} color="#FFFFFF" strokeWidth={2.5} />
+                <Text className="text-base font-nunito-extrabold text-white">
+                  Ligar Agora
+                </Text>
+              </Pressable>
+
+              <Pressable
+                onPress={() => setShowCallModal(false)}
+                className="bg-slate-100 rounded-2xl py-4 items-center active:opacity-80"
+              >
+                <Text className="text-base font-nunito-extrabold text-slate-700">
+                  Cancelar
+                </Text>
+              </Pressable>
+            </View>
+          </Pressable>
+        </Pressable>
+      </Modal>
     </SafeAreaView>
   );
 }

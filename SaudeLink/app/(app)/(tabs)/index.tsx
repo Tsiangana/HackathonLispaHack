@@ -7,7 +7,6 @@ import {
   Bone,
   Brain,
   Building2,
-  ChevronRight,
   FlaskConical,
   Heart,
   HeartPulse,
@@ -15,9 +14,7 @@ import {
   Stethoscope,
   Syringe,
 } from 'lucide-react-native';
-import { useState } from 'react';
 import {
-  Image,
   ImageBackground,
   Pressable,
   ScrollView,
@@ -27,11 +24,11 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { hospitals } from '@/data/hospitals';
 import { HomeHeader } from '@/features/home/components/HomeHeader';
-import { useHospitals } from '@/features/hospitals/hooks/useHospitals';
 import { HospitalNeed } from '@/types/hospital';
 
-// Priority emergency categories with icons (ordered by emergency criticality)
+// Priority emergency categories with icons
 const EMERGENCY_PRIORITIES = [
   {
     id: 'urgency',
@@ -135,10 +132,32 @@ const EMERGENCY_PRIORITIES = [
 ] as const;
 
 export default function HomeScreen() {
-  const [need, setNeed] = useState<HospitalNeed | null>(null);
-  const filteredHospitals = useHospitals('', need);
+  /**
+   * Smart Recommendation Handler:
+   * Finds the best hospital for the specific emergency need and jumps
+   * directly to the active map route navigation state.
+   */
+  const handleQuickAccessPress = (needType: HospitalNeed, label: string) => {
+    const matches = hospitals.filter((h) => {
+      if (needType === 'emergency') return h.resources.emergency;
+      if (needType === 'maternity') return h.resources.maternity;
+      if (needType === 'pediatrics') return h.resources.pediatrics;
+      if (needType === 'laboratory') return h.resources.laboratory;
+      if (needType === 'imaging') return h.resources.imaging;
+      return true;
+    });
 
-  const selectedHospital = filteredHospitals[0];
+    const bestHospital = matches.length > 0 ? matches[0] : hospitals[0];
+
+    router.push({
+      pathname: '/(app)/(tabs)/map',
+      params: {
+        hospitalId: bestHospital.id,
+        autoRoute: 'true',
+        symptom: label,
+      },
+    });
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-white">
@@ -157,7 +176,12 @@ export default function HomeScreen() {
         {/* ── Hero Hospital Card with image background ── */}
         <View className="px-5 mt-4">
           <Pressable
-            onPress={() => selectedHospital && router.push(`/(app)/hospital/${selectedHospital.id}`)}
+            onPress={() =>
+              router.push({
+                pathname: '/(app)/(tabs)/map',
+                params: { hospitalId: hospitals[0].id, autoRoute: 'true' },
+              })
+            }
             className="rounded-3xl overflow-hidden h-48 active:opacity-90"
           >
             <ImageBackground
@@ -179,13 +203,15 @@ export default function HomeScreen() {
                 <View className="flex-row items-center gap-1.5">
                   <MapPin size={13} color="rgba(255,255,255,0.85)" strokeWidth={2.5} />
                   <Text className="text-xs font-nunito text-white/80">
-                    {filteredHospitals.length} unidades encontradas • Luanda, Angola
+                    {hospitals.length} unidades encontradas • Luanda, Angola
                   </Text>
                 </View>
               </View>
             </ImageBackground>
           </Pressable>
-          <Text className="text-xs font-nunito-bold text-slate-400 uppercase tracking-widest mt-2 ml-3">ver todos os hospitais</Text>
+          <Text className="text-xs font-nunito-bold text-slate-400 uppercase tracking-widest mt-2 ml-3">
+            ver todos os hospitais no mapa
+          </Text>
         </View>
 
         {/* ── "Precisa de um hospital?" Button ── */}
@@ -211,8 +237,8 @@ export default function HomeScreen() {
           <Text className="text-lg font-nunito-extrabold text-slate-900">
             Acesso Rápido
           </Text>
-          <Text className="text-xs font-nunito-bold text-slate-400 uppercase tracking-widest">
-            Prioritário
+          <Text className="text-xs font-nunito-bold text-brand-red uppercase tracking-widest">
+            Recomendação Direta
           </Text>
         </View>
 
@@ -221,26 +247,24 @@ export default function HomeScreen() {
           <View className="flex-row flex-wrap gap-3">
             {EMERGENCY_PRIORITIES.map((item) => {
               const Icon = item.icon;
-              const isSelected = need === item.need;
 
               return (
                 <Pressable
                   key={item.id}
-                  onPress={() => setNeed(isSelected ? null : item.need)}
+                  onPress={() => handleQuickAccessPress(item.need, item.label)}
                   className="active:opacity-90"
                   style={{ width: '47%' }}
                 >
                   <View
                     className="rounded-3xl p-5 min-h-[150px] justify-between border"
                     style={{
-                      backgroundColor: isSelected ? item.color + '18' : item.bg,
-                      borderColor: isSelected ? item.color : 'transparent',
+                      backgroundColor: item.bg,
+                      borderColor: 'transparent',
                     }}
                   >
                     {/* Icon container */}
                     <View
-                      className="w-14 h-14 rounded-2xl items-center justify-center"
-                      style={{ backgroundColor: isSelected ? item.color + '25' : '#FFFFFF' }}
+                      className="w-14 h-14 rounded-2xl items-center justify-center bg-white"
                     >
                       <Icon
                         size={30}
@@ -252,14 +276,12 @@ export default function HomeScreen() {
                     {/* Label */}
                     <View className="mt-4">
                       <Text
-                        className="text-base font-nunito-extrabold leading-5"
-                        style={{ color: '#1E293B' }}
+                        className="text-base font-nunito-extrabold leading-5 text-slate-900"
                       >
                         {item.label}
                       </Text>
                       <Text
-                        className="text-xs font-nunito mt-0.5"
-                        style={{ color: '#94A3B8' }}
+                        className="text-xs font-nunito mt-0.5 text-slate-400"
                       >
                         {item.sublabel}
                       </Text>
@@ -270,70 +292,6 @@ export default function HomeScreen() {
             })}
           </View>
         </View>
-
-        {/* ── Results Section (if category selected) ── */}
-        {need !== null && (
-          <View className="px-5 mt-6">
-            <View className="flex-row items-center justify-between mb-3">
-              <Text className="text-base font-nunito-extrabold text-slate-900">
-                Hospitais Encontrados
-              </Text>
-              <Text className="text-xs font-nunito-bold text-brand-red">
-                {filteredHospitals.length} resultado{filteredHospitals.length !== 1 ? 's' : ''}
-              </Text>
-            </View>
-
-            <View className="gap-0">
-              {filteredHospitals.length === 0 ? (
-                <View className="rounded-2xl border border-slate-100 bg-slate-50 p-6 items-center">
-                  <Text className="text-base font-nunito-bold text-slate-700 text-center">
-                    Nenhum hospital encontrado
-                  </Text>
-                  <Text className="text-xs font-nunito text-slate-400 text-center mt-1">
-                    Tenta outro filtro ou pesquisa.
-                  </Text>
-                </View>
-              ) : (
-                filteredHospitals.slice(0, 4).map((hospital, i) => (
-                  <Pressable
-                    key={hospital.id}
-                    onPress={() => router.push(`/(app)/hospital/${hospital.id}`)}
-                    className="flex-row items-center justify-between py-4 active:opacity-70"
-                    style={{
-                      borderBottomWidth: i < filteredHospitals.length - 1 ? 1 : 0,
-                      borderBottomColor: '#F1F5F9',
-                    }}
-                  >
-                    <View className="flex-row items-center gap-3.5 flex-1 pr-3">
-                      <View className="w-12 h-12 rounded-2xl bg-slate-100 items-center justify-center">
-                        <Image
-                          source={{ uri: hospital.image || 'https://images.unsplash.com/photo-1586773860418-d37222d8fce3?w=200&q=60' }}
-                          className="w-12 h-12 rounded-2xl"
-                          style={{ width: 48, height: 48, borderRadius: 12 }}
-                        />
-                      </View>
-                      <View className="flex-1 min-w-0">
-                        <Text className="text-sm font-nunito-extrabold text-slate-800" numberOfLines={1}>
-                          {hospital.name}
-                        </Text>
-                        <View className="flex-row items-center gap-1 mt-0.5">
-                          <MapPin size={11} color="#94A3B8" strokeWidth={2} />
-                          <Text className="text-xs font-nunito text-slate-400" numberOfLines={1}>
-                            {hospital.address}
-                          </Text>
-                        </View>
-                      </View>
-                    </View>
-                    <View className="flex-row items-center gap-1">
-                      <View className={`w-2 h-2 rounded-full ${hospital.isOpen ? 'bg-green-500' : 'bg-slate-300'}`} />
-                      <ChevronRight size={16} color="#CBD5E1" strokeWidth={2.5} />
-                    </View>
-                  </Pressable>
-                ))
-              )}
-            </View>
-          </View>
-        )}
       </ScrollView>
     </SafeAreaView>
   );
