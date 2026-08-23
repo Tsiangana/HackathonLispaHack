@@ -215,7 +215,7 @@ export function YangoHospitalMap({
       </View>
 
       {/* ── Loading Overlay ── */}
-      {isLoading && <MapLoadingOverlay />}
+      {isLoading && <MapLoadingOverlay onCancel={onBack} />}
 
       {/* ── Bottom Sheet ── */}
       <HospitalBottomSheet

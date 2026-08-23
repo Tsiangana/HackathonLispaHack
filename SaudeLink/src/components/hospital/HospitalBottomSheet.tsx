@@ -1,5 +1,6 @@
 import BottomSheet, { BottomSheetScrollView, BottomSheetView } from '@gorhom/bottom-sheet';
 import {
+  Ambulance,
   Building2,
   Car,
   CarTaxiFront,
@@ -68,6 +69,32 @@ export function HospitalBottomSheet({
     }
   }, [autoRoute, selectedHospital, sheetRef]);
 
+  // Filter hospitals based on activeTab
+  const displayedHospitals = useMemo(() => {
+    if (activeTab === 'ambulances') {
+      const ambulanceHospitals = hospitals.filter(
+        (h) => h.emergencyAvailable || h.resources?.emergency
+      );
+      return ambulanceHospitals.length > 0 ? ambulanceHospitals : hospitals;
+    }
+    return hospitals;
+  }, [hospitals, activeTab]);
+
+  const handleTabChange = useCallback(
+    (tab: 'hospitals' | 'ambulances') => {
+      setActiveTab(tab);
+      const filtered =
+        tab === 'ambulances'
+          ? hospitals.filter((h) => h.emergencyAvailable || h.resources?.emergency)
+          : hospitals;
+      const targetList = filtered.length > 0 ? filtered : hospitals;
+      if (targetList.length > 0 && !targetList.some((h) => h.id === selectedHospital.id)) {
+        onSelectHospital(targetList[0]);
+      }
+    },
+    [hospitals, selectedHospital.id, onSelectHospital]
+  );
+
   const travelMinutes = Math.round((selectedHospital.distance ?? 1) * 4) + 3;
   const taxiMinutes = Math.max(travelMinutes - 2, 3);
   const walkMinutes = Math.round((selectedHospital.distance ?? 1) * 14) + 10;
@@ -99,12 +126,15 @@ export function HospitalBottomSheet({
     setBookingId(randomRef);
   }, []);
 
-  const handleCardSelect = useCallback((h: Hospital) => {
-    if (view === 'detail') setView('summary');
-    setBookingId(null);
-    onSelectHospital(h);
-    sheetRef.current?.collapse();
-  }, [view, onSelectHospital, sheetRef]);
+  const handleCardSelect = useCallback(
+    (h: Hospital) => {
+      if (view === 'detail') setView('summary');
+      setBookingId(null);
+      onSelectHospital(h);
+      sheetRef.current?.collapse();
+    },
+    [view, onSelectHospital, sheetRef]
+  );
 
   const handleShare = useCallback(async () => {
     try {
@@ -198,22 +228,24 @@ export function HospitalBottomSheet({
           {/* Tabs */}
           <View className="flex-row gap-3">
             <TouchableOpacity
-              onPress={() => setActiveTab('hospitals')}
-              className={`px-5 py-2 rounded-2xl flex-row items-center gap-2 active:opacity-90 ${
+              onPress={() => handleTabChange('hospitals')}
+              className={`px-4 py-2.5 rounded-2xl flex-row items-center gap-2 active:opacity-90 ${
                 activeTab === 'hospitals' ? 'bg-slate-900' : 'bg-slate-100'
               }`}
             >
+              <Building2 size={15} color={activeTab === 'hospitals' ? '#FFFFFF' : '#475569'} strokeWidth={2.2} />
               <Text className={`text-sm font-nunito-extrabold ${activeTab === 'hospitals' ? 'text-white' : 'text-slate-700'}`}>
                 Hospitais Próximos
               </Text>
             </TouchableOpacity>
 
             <TouchableOpacity
-              onPress={() => setActiveTab('ambulances')}
-              className={`px-5 py-2 rounded-2xl flex-row items-center gap-2 active:opacity-90 ${
-                activeTab === 'ambulances' ? 'bg-slate-900' : 'bg-slate-100'
+              onPress={() => handleTabChange('ambulances')}
+              className={`px-4 py-2.5 rounded-2xl flex-row items-center gap-2 active:opacity-90 ${
+                activeTab === 'ambulances' ? 'bg-brand-red' : 'bg-slate-100'
               }`}
             >
+              <Ambulance size={15} color={activeTab === 'ambulances' ? '#FFFFFF' : '#475569'} strokeWidth={2.2} />
               <Text className={`text-sm font-nunito-extrabold ${activeTab === 'ambulances' ? 'text-white' : 'text-slate-700'}`}>
                 Ambulâncias (24/7)
               </Text>
@@ -222,9 +254,11 @@ export function HospitalBottomSheet({
 
           {/* Hospital Cards Carousel */}
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 12, paddingVertical: 4 }}>
-            {hospitals.map((hosp) => {
+            {displayedHospitals.map((hosp) => {
               const isSelected = hosp.id === selectedHospital.id;
               const mins = Math.round((hosp.distance ?? 1) * 4) + 3;
+              const CardIcon = activeTab === 'ambulances' ? Ambulance : Building2;
+
               return (
                 <Pressable
                   key={hosp.id}
@@ -237,7 +271,7 @@ export function HospitalBottomSheet({
                     <View className={`w-10 h-10 rounded-2xl items-center justify-center border ${
                       isSelected ? 'bg-white border-red-200' : 'bg-slate-50 border-slate-100'
                     }`}>
-                      <Building2 size={20} color={isSelected ? '#D9232E' : '#64748B'} strokeWidth={2} />
+                      <CardIcon size={20} color={isSelected ? '#D9232E' : '#64748B'} strokeWidth={2} />
                     </View>
                     <View className={`px-2.5 py-1 rounded-full flex-row items-center gap-1 ${isSelected ? 'bg-brand-red' : 'bg-slate-100'}`}>
                       <Clock size={11} color={isSelected ? '#FFFFFF' : '#475569'} strokeWidth={2.5} />
@@ -262,9 +296,21 @@ export function HospitalBottomSheet({
                       <Text className="text-xs font-nunito-extrabold text-slate-700">{hosp.rating}</Text>
                       <Text className="text-xs font-nunito text-slate-400">{`• ${hosp.distance} km`}</Text>
                     </View>
-                    <View className={`px-2 py-0.5 rounded-md ${hosp.emergencyAvailable ? 'bg-emerald-50' : 'bg-slate-100'}`}>
-                      <Text className={`text-[10px] font-nunito-bold ${hosp.emergencyAvailable ? 'text-emerald-700' : 'text-slate-600'}`}>
-                        {hosp.emergencyAvailable ? 'Emergência' : 'Consulta'}
+                    <View className={`px-2 py-0.5 rounded-md ${
+                      activeTab === 'ambulances'
+                        ? 'bg-red-50'
+                        : hosp.emergencyAvailable
+                        ? 'bg-emerald-50'
+                        : 'bg-slate-100'
+                    }`}>
+                      <Text className={`text-[10px] font-nunito-bold ${
+                        activeTab === 'ambulances'
+                          ? 'text-brand-red'
+                          : hosp.emergencyAvailable
+                          ? 'text-emerald-700'
+                          : 'text-slate-600'
+                      }`}>
+                        {activeTab === 'ambulances' ? 'Ambulância 24/7' : hosp.emergencyAvailable ? 'Emergência' : 'Consulta'}
                       </Text>
                     </View>
                   </View>

@@ -232,7 +232,7 @@ export function YangoHospitalMap({
       </View>
 
       {/* ── Loading Overlay ── */}
-      {isLoading && <MapLoadingOverlay />}
+      {isLoading && <MapLoadingOverlay onCancel={onBack} />}
 
       {/* ── Interactive Draggable Hospital Bottom Sheet ── */}
       <HospitalBottomSheet

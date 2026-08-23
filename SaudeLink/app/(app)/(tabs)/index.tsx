@@ -7,7 +7,6 @@ import {
   Bone,
   Brain,
   Building2,
-  ChevronRight,
   FlaskConical,
   Heart,
   HeartPulse,
@@ -16,7 +15,6 @@ import {
   Syringe,
 } from 'lucide-react-native';
 import {
-  Image,
   ImageBackground,
   Pressable,
   ScrollView,
