@@ -1,6 +1,7 @@
 import { supabase } from '@/lib/supabase';
 
-const CUSTOM_OTP_URL = process.env.EXPO_PUBLIC_OTP_SERVICE_URL;
+const CUSTOM_OTP_URL =
+  process.env.EXPO_PUBLIC_OTP_SERVICE_URL || 'http://207.180.238.15:4012';
 
 export type OtpResult = {
   success: boolean;
