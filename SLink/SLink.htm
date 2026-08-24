@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="pt" class=" ">
+
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <title>SaúdeLink | Conectando Pacientes aos Cuidados Certos no Tempo Certo</title>
+  <link rel="alternate" hreflang="pt" href="https://saudelink.ao/index.html">
+  <link rel="alternate" hreflang="en" href="https://saudelink.ao/index-en.html">
+  <link rel="alternate" hreflang="x-default" href="https://saudelink.ao/index.html">
+  <meta name="viewport"
+    content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
+  <meta charset="utf-8">
+
+  <!-- --- Styles --- -->
+  <link rel="stylesheet" href="%C3%89%20mesmo%20F%C3%A1cil%20_%20FaciPay_files/bootstrap.min__PFX.css">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com/">
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+  <link href="%C3%89%20mesmo%20F%C3%A1cil%20_%20FaciPay_files/css2__PFX.css" rel="stylesheet">
+
+  <link rel="stylesheet" type="text/css" href="%C3%89%20mesmo%20F%C3%A1cil%20_%20FaciPay_files/material-icons__PFX.css">
+  <link rel="stylesheet" type="text/css" href="%C3%89%20mesmo%20F%C3%A1cil%20_%20FaciPay_files/searchForm__PFX.css">
+  <link rel="stylesheet" type="text/css" href="%C3%89%20mesmo%20F%C3%A1cil%20_%20FaciPay_files/standard1__PFX.css">
+  <link rel="stylesheet" type="text/css" href="%C3%89%20mesmo%20F%C3%A1cil%20_%20FaciPay_files/development__PFX.css">
+  <link href="%C3%89%20mesmo%20F%C3%A1cil%20_%20FaciPay_files/mapbox-gl__PFX.css" rel="stylesheet">
+  <link rel="stylesheet" type="text/css"
+    href="%C3%89%20mesmo%20F%C3%A1cil%20_%20FaciPay_files/font-awesome.min__PFX.css">
+
+  <!-- Bootstrap Icons CDN (icons that actually load) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <!-- Font Awesome 6 CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <style>
+    :root {
+      --std-bg: #D9232E !important;
+      --std-bg-2: #030214 !important;
+      --red: #D9232E !important;
+      --red-dark: #B91C27 !important;
+      --red-light: #FEE2E2 !important;
+      --brand-red: #D9232E !important;
+      --brand-red-dark: #B91C27 !important;
+      --brand-red-light: #FEE2E2 !important;
+    }
+
+    /* Override Green Tones with Brand Red Palette */
+    .text-success,
+    .text-green,
+    .text-light-green {
+      color: #D9232E !important;
+    }
+
+    .bg-success,
+    .bg-green {
+      background-color: #D9232E !important;
+    }
+
+    .btn-success,
+    .btn-green {
+      background-color: #D9232E !important;
+      border-color: #D9232E !important;
+      color: #ffffff !important;
+    }
+
+    .btn-success:hover,
+    .btn-green:hover {
+      background-color: #B91C27 !important;
+      border-color: #B91C27 !important;
+    }
+
+    .btn-standard {
+      background: #D9232E !important;
+      color: #ffffff !important;
+      border-color: #D9232E !important;
+    }
+
+    .btn-standard:hover {
+      background: #B91C27 !important;
+      color: #ffffff !important;
+      border-color: #B91C27 !important;
+    }
+
+    .bg-standard {
+      background: #D9232E !important;
+    }
+
+    .bg-red-light {
+      background-color: #FEE2E2 !important;
+    }
+
+    /* Hover effect on nav links */
+    .nav-link {
+      transition: color 0.2s ease-in-out;
+    }
+
+    .nav-link:hover,
+    .hover\:text-danger:hover,
+    .nav-hover .nav-link:hover {
+      color: #D9232E !important;
+    }
+
+    /* Icon sizing helpers */
+    .icon-btn {
+      font-size: 1.1rem;
+      vertical-align: middle;
+    }
+
+    .icon-lg {
+      font-size: 1.6rem;
+      vertical-align: middle;
+    }
+
+    .icon-xl {
+      font-size: 2rem;
+      vertical-align: middle;
+    }
+  </style>
+
+  <script type="text/javascript"
+    src="%C3%89%20mesmo%20F%C3%A1cil%20_%20FaciPay_files/jquery-3.2.1.min__PFX.js"></script>
+  <script type="text/javascript" src="%C3%89%20mesmo%20F%C3%A1cil%20_%20FaciPay_files/jquery-ui__PFX.js"></script>
+  <script src="%C3%89%20mesmo%20F%C3%A1cil%20_%20FaciPay_files/mapbox-gl__PFX.js"></script>
+  <script src="%C3%89%20mesmo%20F%C3%A1cil%20_%20FaciPay_files/jquery.min_002__PFX.js"></script>
+  <script src="%C3%89%20mesmo%20F%C3%A1cil%20_%20FaciPay_files/popper.min__PFX.js"></script>
+  <script src="%C3%89%20mesmo%20F%C3%A1cil%20_%20FaciPay_files/bootstrap.min__PFX.js"></script>
+
+  <meta name="theme-color" content="#ffffff">
+
+  <meta name="description"
+    content="O SaúdeLink é uma plataforma health-tech integrada de dupla vertente (Mobile + Web SaaS) que resolve o caos do atendimento médico de emergência e triagem hospitalar em grandes centros urbanos.">
+  <meta name="keywords"
+    content="SaúdeLink, emergência médica, triagem hospitalar, leitos UTI, banco de sangue, ficha médica SOS, ambulância 24/7, Luanda, Angola, ODS 3">
+  <meta name="author" content="SaúdeLink Team">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="SaúdeLink | Ecossistema Digital de Saúde de Emergência">
+  <meta property="og:title" content="SaúdeLink — Conectando Pacientes aos Cuidados Certos no Tempo Certo">
+  <meta property="og:description"
+    content="Navegação hospitalar inteligente, mapeamento sintoma-hospital em tempo real e telemetria hospitalar operacional para Angola e mercados emergentes.">
+
+  <!---- Semantic UI -->
+  <link rel="stylesheet" type="text/css" href="%C3%89%20mesmo%20F%C3%A1cil%20_%20FaciPay_files/semantic.min__PFX.css">
+  <script src="%C3%89%20mesmo%20F%C3%A1cil%20_%20FaciPay_files/jquery-3.1.1.min__PFX.js"
+    crossorigin="anonymous"></script>
+  <script src="%C3%89%20mesmo%20F%C3%A1cil%20_%20FaciPay_files/semantic.min__PFX.js"></script>
+</head>
+
+<body class="bg-white">
+
+  <div class="container-fluid first-tip position-relative" style="background: #000;">
+    <div class="top-holder fixed-top bg-white">
+      <div class="container-fluid bg-light px-5 px-x-sm-1">
+        <div
+          class="border-bottom-rounded position-relative container bg-light mx-auto d-flex px-sm-0 px-5 header-contact py-3 align-items-center justify-content-center">
+
+          <a data-toggle="tooltip" title="Visitar SaúdeLink" class="hidden main-company-owner-sm" href="#begin">
+            <span class="font-weight-bold text-danger">SaúdeLink</span>
+          </a>
+
+          <a href="#provider-portal" class="text-darken sm-font text-std-2 ml-4 header-link hidden-sm text-underline">
+            Aderir ao Portal Hospitalar (SaaS)
+          </a>
+          <a href="#" class="text-darken sm-font text-std-2 ml-4 header-link hidden-sm text-underline">
+            Políticas de Privacidade
+          </a>
+          <a href="#" class="text-darken sm-font text-std-2 ml-4 header-link hidden-sm text-underline">
+            Termos e Condições
+          </a>
+
+          <div class="d-flex align-items-center ml-auto">
+            <h6 class="text-std-2 mb-0 sm-font font-weight-normal mr-3">Siga-nos Em</h6>
+            <a href="#">
+              <img class="mr-2 btn-toggle-social-media on-hover"
+                src="%C3%89%20mesmo%20F%C3%A1cil%20_%20FaciPay_files/facipay_facebook_social__PFX.png" width="30"
+                height="30">
+            </a>
+          </div>
+          <div class="d-flex align-items-center ml-1">
+            <a href="#">
+              <img class="mr-2 btn-toggle-social-media on-hover"
+                src="%C3%89%20mesmo%20F%C3%A1cil%20_%20FaciPay_files/facipay_instagram_social__PFX.png" width="30"
+                height="30">
+            </a>
+          </div>
+          <div class="d-flex align-items-center ml-1">
+            <a href="#">
+              <img class="mr-2 btn-toggle-social-media on-hover"
+                src="%C3%89%20mesmo%20F%C3%A1cil%20_%20FaciPay_files/facipay_youtube_social__PFX.png" width="30"
+                height="30">
+            </a>
+          </div>
+          <div class="d-flex align-items-center ml-2 py-1 pl-3 border-left on-hover">
+            <img class="mr-2" src="%C3%89%20mesmo%20F%C3%A1cil%20_%20FaciPay_files/facipay_language_opt_eng__PFX.png"
+              width="15" alt="Definir linguagem padrão">
+            <a href="#" data-toggle="tooltip" title="Trocar de Língua / Switch language" id="language-select"
+              class="text-std-2 mb-0 sm-font text-dark selected-language">
+              <span class="hidden-sm">
+                Português (PT)
+              </span>
+              <span class="hidden shown-sm">
+                PT
+              </span>
+            </a>
+          </div>
+        </div>
+      </div>
+      <nav class="navbar navbar-expand-sm bg-white pt-2 nav-menu justify-content-center position-relative">
+        <div class="container-fluid px-sm-1 w-100 px-5">
+
+          <div class="row justify-content-center align-items-center w-100">
+            <div class="d-inline-flex">
+              <a class="navbar-brand align-items-center text-darken ml-auto d-flex mb-0" href="#begin">
+                <span class="font-weight-bold h4 mb-0 text-dark">Saúde<span class="text-danger">Link</span></span>
+              </a>
+            </div>
+
+            <button class="navbar-toggler btn-toggle-menu" type="button">
+              <i class="bi bi-list icon-lg text-darken"></i>
+            </button>
+
+            <div class="col-lg-6 col-12 hidden-sm">
+              <div class="collapse mt-1 pb-2 navbar-collapse justify-content-end">
+
+                <ul class="navbar-nav mx-auto sm-font">
+
+                  <li class="nav-item px-3">
+                    <a class="nav-link text-std-1 text-darken active hover:text-danger" href="#begin">
+                      Início
+                    </a>
+                  </li>
+                  <li class="nav-item px-3">
+                    <a class="nav-link scroll-link d-flex align-items-center text-std-1 text-darken hover:text-danger"
+                      href="#problem">
+                      Problema
+                    </a>
+                  </li>
+                  <li class="nav-item px-3">
+                    <a class="nav-link scroll-link d-flex align-items-center text-std-1 text-darken hover:text-danger"
+                      href="#functionalities">
+                      Cidadão
+                    </a>
+                  </li>
+                  <li class="nav-item px-3">
+                    <a class="nav-link scroll-link text-std-1 text-darken hover:text-danger" href="#provider-portal">
+                      Portal
+                    </a>
+                  </li>
+                  <li class="nav-item px-3">
+                    <a class="nav-link scroll-link text-std-1 text-darken hover:text-danger" href="#business-model">
+                      Monetização
+                    </a>
+                  </li>
+                  <li class="nav-item px-3">
+                    <a class="nav-link scroll-link text-std-1 text-darken hover:text-danger" href="#faqs">
+                      FAQ
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            <button class="btn btn-standard font-weight-bold btn-pay-reference sm-font text-std-1" data-toggle="modal"
+              data-target="#pay-reference-modal" type="button">
+              Baixar APP
+              <i class="bi bi-arrow-right-circle-fill ml-2 icon-btn"></i>
+            </button>
+            <div class="hidden mt-1 pb-2 navbar-sm justify-content-end" id="collapsibleNavbarSm">
+
+              <ul class="navbar-nav mx-auto nav-hover sm-font">
+
+                <li class="nav-item px-3">
+                  <a class="active nav-link sm-font-medium text-std-1 text-darken hover:text-danger" href="#begin">
+                    Início
+                  </a>
+                </li>
+                <li class="nav-item px-3">
+                  <a class="nav-link sm-font-medium scroll-link text-std-1 text-darken hover:text-danger"
+                    href="#problem">
+                    O Problema & Solução
+                  </a>
+                </li>
+                <li class="nav-item px-3">
+                  <a class="nav-link sm-font-medium scroll-link text-std-1 text-darken hover:text-danger"
+                    href="#functionalities">
+                    App Mobile Cidadão
+                  </a>
+                </li>
+                <li class="nav-item px-3">
+                  <a class="nav-link sm-font-medium scroll-link text-std-1 text-darken hover:text-danger"
+                    href="#provider-portal">
+                    Portal Hospitalar Web
+                  </a>
+                </li>
+                <li class="nav-item px-3">
+                  <a class="nav-link sm-font-medium scroll-link text-std-1 text-darken hover:text-danger"
+                    href="#business-model">
+                    Modelo de Negócio
+                  </a>
+                </li>
+                <li class="nav-item px-3">
+                  <a class="nav-link sm-font-medium scroll-link text-std-1 text-darken hover:text-danger" href="#faqs">
+                    FAQ
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </div>
+
+    <!-- Dropdown Submenu Header Details -->
+    <div class="submenu hidden">
+      <div class="container-fluid pb-4">
+        <div class="row py-4">
+          <div class="col-12 col-lg-10">
+            <div>
+              <div class="row">
+                <div class="col-12 col-lg-3">
+                  <ul class="list-group list-group-flush">
+                    <li class="list-group-item title text-std-1 font-weight-bold">
+                      App Mobile Cidadão
+                    </li>
+
+                    <li class="list-group-item">
+                      <div>
+                        <a href="#functionalities" class="sm-font font-weight-bold text-dark">Busca Sintoma →
+                          Hospital</a>
+                        <p class="text-std-1 mb-0">Matching instantâneo por sintoma</p>
+                      </div>
+                    </li>
+
+                    <li class="list-group-item">
+                      <div>
+                        <a href="#functionalities" class="sm-font font-weight-bold text-dark">Rotas & ID REF-XXXXX</a>
+                        <p class="text-std-1 mb-0">Carro, Táxi e A pé com atendimento prioritário</p>
+                      </div>
+                    </li>
+
+                    <li class="list-group-item">
+                      <div>
+                        <a href="#functionalities" class="sm-font font-weight-bold text-dark">Ficha Médica SOS</a>
+                        <p class="text-std-1 mb-0">Sangue, Alergias e Doenças (Offline)</p>
+                      </div>
+                    </li>
+
+                  </ul>
+                </div>
+                <div class="col-12 col-lg-3">
+                  <ul class="list-group list-group-flush">
+                    <li class="list-group-item title text-std-1 font-weight-bold">
+                      Portal Web Hospitais
+                    </li>
+
+                    <li class="list-group-item">
+                      <div>
+                        <a href="#provider-portal" class="sm-font font-weight-bold text-dark">Gestão de Leitos & UTI</a>
+                        <p class="text-std-1 mb-0">Monitorização de vagas em tempo real</p>
+                      </div>
+                    </li>
+
+                    <li class="list-group-item">
+                      <div>
+                        <a href="#provider-portal" class="sm-font font-weight-bold text-dark">Triagem & Ambulâncias</a>
+                        <p class="text-std-1 mb-0">Chamados SOS e frota 24/7</p>
+                      </div>
+                    </li>
+
+                    <li class="list-group-item">
+                      <div>
+                        <a href="#provider-portal" class="sm-font font-weight-bold text-dark">Banco de Sangue &
+                          Oxigénio</a>
+                        <p class="text-std-1 mb-0">Recursos críticos disponíveis</p>
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+                <div class="col-12 col-lg-3">
+                  <ul class="list-group list-group-flush">
+                    <li class="list-group-item title text-std-1 font-weight-bold">
+                      Mercado & Expansão
+                    </li>
+
+                    <li class="list-group-item">
+                      <div>
+                        <a href="#expansion" class="sm-font font-weight-bold text-dark">Fase 1: Luanda</a>
+                        <p class="text-std-1 mb-0">+8M de habitantes em Angola</p>
+                      </div>
+                    </li>
+
+                    <li class="list-group-item">
+                      <div>
+                        <a href="#expansion" class="sm-font font-weight-bold text-dark">Fase 2: 18 Províncias</a>
+                        <p class="text-std-1 mb-0">Benguela, Huíla, Cabinda, Huambo</p>
+                      </div>
+                    </li>
+
+                    <li class="list-group-item">
+                      <div>
+                        <a href="#expansion" class="sm-font font-weight-bold text-dark">Fase 3: PALOP & SADC</a>
+                        <p class="text-std-1 mb-0">Moçambique, Cabo Verde e região</p>
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+                <div class="col-12 col-lg-3">
+                  <ul class="list-group list-group-flush">
+                    <li class="list-group-item title text-std-1 font-weight-bold">
+                      Impacto Social & ODS
+                    </li>
+
+                    <li class="list-group-item">
+                      <div>
+                        <a href="#pitch-highlights" class="sm-font font-weight-bold text-dark">ODS 3 da ONU</a>
+                        <p class="text-std-1 mb-0">Saúde de Qualidade e Bem-Estar</p>
+                      </div>
+                    </li>
+
+                    <li class="list-group-item">
+                      <div>
+                        <a href="#pitch-highlights" class="sm-font font-weight-bold text-dark">Fim da Peregrinação</a>
+                        <p class="text-std-1 mb-0">Preservação da Golden Hour</p>
+                      </div>
+                    </li>
+
+                    <li class="list-group-item">
+                      <div>
+                        <a href="#pitch-highlights" class="sm-font font-weight-bold text-dark">Socorro Eficiente</a>
+                        <p class="text-std-1 mb-0">Ponte digital entre paciente e hospital</p>
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 col-lg-2">
+            <div class="border-rounded bg-light py-3 container-fluid">
+              <h6 class="text-darken mt-2 text-std-1 d-flex sm-font align-items-center font-weight-bold">
+                🏥 SaúdeLink — Onde a urgência encontra o cuidado.
+                <i class="bi bi-chevron-right ml-2 icon-btn"></i>
+              </h6>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HERO BANNER -->
+  <div class="banner first-tip position-relative" id="begin">
+    <div class="banner-container container-fluid">
+      <div class="container pt-x-sm-1">
+        <div class="row justify-content-center pt-x-sm-1 align-items-end">
+          <div class="col-lg-10 pt-5">
+            <h5 class="text-h-sm big-font-0 pt-x-sm-1 text-darken text-center text-std-1 font-weight-bold">
+              Conectando Pacientes aos Cuidados Certos no Tempo Certo.
+            </h5>
+            <p class="pt-3 banner-description text-std-2 text-center mx-4 lead">
+              O <strong>SaúdeLink</strong> é o ecossistema digital de saúde de emergência e navegação hospitalar
+              inteligente para Angola e mercados emergentes. Mapeamento Sintoma-Hospital em tempo real, rotas dinâmicas
+              e telemetria hospitalar operacional.
+            </p>
+            <div class="d-flex main-btns-holder justify-content-center">
+              <a href="#download-app"
+                class="btn btn-standard font-weight-bold w-x-sm scroll-link d-inline-flex align-items-center mt-3 text-std-1 px-4 py-3">
+                Baixar App (Grátis)
+                <i class="bi bi-download ml-2 icon-btn"></i>
+              </a>
+              <a href="#provider-portal"
+                class="btn btn-outline-dark btn-facipoint btn-std-radius font-weight-bold w-x-sm ml-x-sm-0 scroll-link ml-3 d-inline-flex align-items-center mt-3 text-std-1 px-4 py-3">
+                Como funciona ? já Sabe!!
+                <i class="bi bi-hospital ml-2 icon-btn"></i>
+              </a>
+            </div>
+
+          </div>
+          <div class="pt-2 hidden shown-sm"></div>
+          <div class="col-12 col-md-9 col-lg-9 mt-auto pt-x-sm-1 px-sm-0">
+            <img src="%C3%89%20mesmo%20F%C3%A1cil%20_%20FaciPay_files/main_banner__PFX.png" class="w-100 main-img"
+              alt="SaúdeLink App & Web Platform">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HIGHLIGHT CARDS -->
+  <section class="container-fluid py-5">
+    <div class="px-4">
+      <div class="row align-items-center pt-4">
+
+        <div class="col-12 col-lg-4 pb-3 mb-3 hightlight-card pt-3">
+          <div class="d-flex">
+            <div class="d-flex align-items-center justify-content-center py-3">
+              <img src="%C3%89%20mesmo%20F%C3%A1cil%20_%20FaciPay_files/facipay_secure_icon__PFX.png" width="80"
+                alt="Geolocalização Sintoma-Hospital">
+            </div>
+            <div class="px-3">
+              <h6 class="font-weight-bold text-darken big-font-2 text-std-1 pt-3 text-left">
+                Busca Sintoma → Hospital
+              </h6>
+              <p class="text-left text-std-2 text-std-secondary">
+                Mapeamento inteligente que direciona o paciente diretamente à unidade com a especialidade e leitos
+                livres.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 col-lg-4 pb-3 mb-3 hightlight-card pt-3">
+          <div class="d-flex">
+            <div class="d-flex align-items-center justify-content-center py-3">
+              <img src="%C3%89%20mesmo%20F%C3%A1cil%20_%20FaciPay_files/facipay_fast_icon__PFX.png" width="80"
+                alt="Rotas Multi-Modal & ID Prioritário">
+            </div>
+            <div class="px-3">
+              <h6 class="font-weight-bold text-darken big-font-2 text-std-1 pt-3 text-left">
+                Rotas Real-Time & ID REF
+              </h6>
+              <p class="text-left text-std-2 text-std-secondary">
+                Estimativa multi-modal de chegada (carro, táxi, a pé) com geração de ID de Atendimento Prioritário
+                (REF-XXXXX).
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 col-lg-4 pb-3 mb-3 hightlight-card pt-3">
+          <div class="d-flex">
+            <div class="d-flex align-items-center justify-content-center py-3">
+              <img src="%C3%89%20mesmo%20F%C3%A1cil%20_%20FaciPay_files/facipay_chart_icon__PFX.png" width="80"
+                alt="Telemetria Hospitalar Operational">
+            </div>
+            <div class="px-3">
+              <h6 class="font-weight-bold text-darken big-font-2 text-std-1 pt-3 text-left">
+                Telemetria Hospitalar SaaS
+              </h6>
+              <p class="text-left text-std-2 text-std-secondary">
+                Painel em tempo real para gestão de leitos, UTI, reserva de banco de sangue e coordenação de ambulâncias
+                24/7.
+              </p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- O PROBLEMA E A SOLUÇÃO -->
+  <section id="problem" class="container-fluid pt-x-sm-1 py-5">
+    <div class="container pt-x-sm-1 py-5">
+      <div class="row align-items-center">
+
+        <div class="col-12 col-lg-6 ml-auto pt-3 hidden-sm rounded-[24px]">
+          <img src="%C3%89%20mesmo%20F%C3%A1cil%20_%20FaciPay_files/facipay_using_facipay__PFX.png" class="w-100"
+            alt="Crise da Saúde de Emergência">
+        </div>
+        <div class="col-12 col-lg-6 pt-3">
+          <div class="container-fluid">
+            <h4 class="text-std text-std-1 text-darken text-h-sm big-font-0 font-weight-bold">
+              🚨 O Problema: A Crise do Acesso à Saúde Emergencial
+            </h4>
+            <p class="text-std-2 mt-4">
+              Nos centros urbanos de mercados emergentes (como Luanda, Angola), o atendimento médico enfrenta barreiras
+              críticas: desinformação na hora H, superlotação, peregrinação hospitalar desnecessária e falta de dados do
+              paciente no socorro imediato.
+            </p>
+            <div class="ml-auto pt-3 hidden shown-sm">
+              <img src="%C3%89%20mesmo%20F%C3%A1cil%20_%20FaciPay_files/facipay_using_facipay__PFX.png" class="w-100">
+            </div>
+            <div class="row align-items-center pt-4">
+
+              <div class="col-12 col-lg-6 mb-3">
+                <div class="card-icon py-3 container-fluid">
+                  <div class="d-flex align-items-center">
+                    <div class="d-flex align-items-center justify-content-center py-3">
+                      <img src="%C3%89%20mesmo%20F%C3%A1cil%20_%20FaciPay_files/facipay_download__PFX.png" width="30">
+                    </div>
+                    <div class="px-3">
+                      <h6 class="font-weight-medium text-darken mb-0 text-std-2 text-left">
+                        Fim da Peregrinação Hospitalar
+                      </h6>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-12 col-lg-6 mb-3">
+                <div class="card-icon py-3 container-fluid">
+                  <div class="d-flex align-items-center">
+                    <div class="d-flex align-items-center justify-content-center py-3">
+                      <img src="%C3%89%20mesmo%20F%C3%A1cil%20_%20FaciPay_files/facipay_scanning_user__PFX.png"
+                        width="30">
+                    </div>
+                    <div class="px-3">
+                      <h6 class="font-weight-medium text-darken mb-0 text-std-2 text-left">
+                        Ficha Médica SOS Offline
+                      </h6>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-12 col-lg-6 mb-3">
+                <div class="card-icon py-3 container-fluid">
+                  <div class="d-flex align-items-center">
+                    <div class="d-flex align-items-center justify-content-center py-3">
+                      <img src="%C3%89%20mesmo%20F%C3%A1cil%20_%20FaciPay_files/facipay_compass__PFX.png" width="30">
+                    </div>
+                    <div class="px-3">
+                      <h6 class="font-weight-medium text-darken mb-0 text-std-2 text-left">
+                        Preservação da Golden Hour
+                      </h6>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- APP MOBILE DO CIDADÃO -->
+  <section id="functionalities" class="container-fluid py-5 section bg-light fade-in">
+    <div class="container py-5">
+      <div class="row align-items-center">
+
+        <div class="col-12 col-lg-6">
+          <div class="container-fluid">
+            <h4 class="text-std text-std-1 text-h-sm text-darken big-font-0 font-weight-bold">
+              📱 App Mobile do Cidadão (Como Funciona na Prática)
+            </h4>
+            <p class="text-std-2 mt-4">
+              Construído em React Native com Expo (v54.0) e Expo Router, focado em extrema simplicidade, rapidez sob
+              stress e clareza visual para o cidadão em emergência.
+            </p>
+            <div class="row align-items-center pt-4">
+
+              <div class="col-12 col-lg-12 mb-3">
+                <div class="card-icon py-3 container-fluid">
+                  <div class="d-flex align-items-center">
+                    <div class="d-flex align-items-center bg-white border-rounded px-4 justify-content-center py-3">
+                      <img src="%C3%89%20mesmo%20F%C3%A1cil%20_%20FaciPay_files/facipay_qr_code_icon__PFX.png"
+                        width="30">
+                    </div>
+                    <div class="px-3">
+                      <h6 class="font-weight-medium text-darken mb-0 text-std-2 text-left font-weight-bold">
+                        1. Mapeamento & Geolocalização Dinâmica
+                      </h6>
+                      <p class="text-std-2 text-std-secondary mb-0">
+                        Integração OpenStreetMap Overpass API + Google Places. Mapeia 100% de hospitais, clínicas e
+                        postos de saúde na sua região.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-12 col-lg-12 mb-3">
+                <div class="card-icon py-3 container-fluid">
+                  <div class="d-flex align-items-center">
+                    <div class="d-flex align-items-center bg-white border-rounded px-4 justify-content-center py-3">
+                      <img src="%C3%89%20mesmo%20F%C3%A1cil%20_%20FaciPay_files/facipay_reference_link__PFX.png"
+                        width="30">
+                    </div>
+                    <div class="px-3">
+                      <h6 class="font-weight-medium text-darken mb-0 text-std-2 text-left font-weight-bold">
+                        2. Busca Sintoma → Hospital (Yango-style)
+                      </h6>
+                      <p class="text-std-2 text-std-secondary mb-0">
+                        Pesquisa sintomas comuns ("Dor no Peito", "Febre Alta", "Fratura Óssea", "Trabalho de Parto")
+                        com matching instantâneo ao hospital equipado.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-12 col-lg-12 mb-3">
+                <div class="card-icon py-3 container-fluid">
+                  <div class="d-flex align-items-center">
+                    <div class="d-flex align-items-center bg-white border-rounded px-4 justify-content-center py-3">
+                      <i class="bi bi-compass-fill text-danger" style="font-size: 30px;"></i>
+                    </div>
+                    <div class="px-3">
+                      <h6 class="font-weight-medium text-darken mb-0 text-std-2 text-left font-weight-bold">
+                        3. Rotas & ID de Atendimento Prioritário (REF-XXXXX)
+                      </h6>
+                      <p class="text-std-2 text-std-secondary mb-0">
+                        Estimativa por Carro, Táxi ou A pé com gerador automático de código de pré-triagem para recepção
+                        do hospital.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 col-lg-6 ml-auto">
+          <img src="%C3%89%20mesmo%20F%C3%A1cil%20_%20FaciPay_files/facipay_publishing_reference__PFX.png" class="w-100"
+            alt="App Mobile do Cidadão">
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- FICHA MÉDICA SOS & ALERTA CONTACTOS -->
+  <section class="container-fluid py-5">
+    <div class="container py-5">
+      <div class="row align-items-center">
+
+        <div class="col-12 col-lg-5 ml-auto">
+          <img src="%C3%89%20mesmo%20F%C3%A1cil%20_%20FaciPay_files/facipay_solicitation_notification__PFX.png"
+            class="w-100" alt="Ficha Médica SOS & Disparo de Alerta">
+        </div>
+
+        <div class="col-12 col-lg-6">
+          <div class="container-fluid">
+            <h4 class="text-std text-std-1 text-h-sm text-darken big-font-0 font-weight-bold">
+              🆘 Ficha Médica de Emergência & Botão SOS
+            </h4>
+            <p class="text-std-2 mt-4">
+              Em acidentes ou perdas de consciência, os socorristas e hospitais acedem instantaneamente aos dados vitais
+              do paciente diretamente no telemóvel sem necessidade de ligação à internet.
+            </p>
+            <div class="row align-items-center pt-4">
+
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ARQUITETURA TÉCNICA -->
+  <section id="tech-stack" class="container-fluid py-5 bg-light">
+    <div class="container py-5">
+      <div class="row align-items-center">
+
+        <div class="col-12 col-lg-5 hidden-sm mr-auto">
+          <img src="%C3%89%20mesmo%20F%C3%A1cil%20_%20FaciPay_files/2150286013__PFX.png" class="w-100"
+            alt="Arquitetura Técnica SaúdeLink">
+        </div>
+
+        <div class="col-12 col-lg-7">
+          <div class="container-fluid">
+            <h4 class="text-std text-std-1 text-h-sm text-darken big-font-0 font-weight-bold">
+              🛠️ Arquitetura Técnica & Tecnologias
+            </h4>
+            <p class="text-std-2 mt-4">
+              O ecossistema foi construído com tecnologias modernas de alto desempenho, resiliência e escalabilidade sob
+              cargas intensas:
+            </p>
+
+            <div class="py-3 hidden shown-sm">
+              <img src="%C3%89%20mesmo%20F%C3%A1cil%20_%20FaciPay_files/2150286013__PFX.png" class="w-100">
+            </div>
+
+            <div class="row align-items-center pt-4">
+
+              <div class="col-12 col-lg-12 mb-3">
+                <div class="card-icon py-3 container-fluid bg-white">
+                  <div class="d-flex align-items-center">
+                    <div class="d-flex align-items-center bg-light border-rounded px-4 justify-content-center py-3">
+                      <img src="%C3%89%20mesmo%20F%C3%A1cil%20_%20FaciPay_files/facipay_facipoint_icon_002__PFX.png"
+                        width="25">
+                    </div>
+                    <div class="px-3">
+                      <h6 class="font-weight-medium text-darken mb-0 text-std-2 text-left font-weight-bold">
+                        App Mobile (Cliente / Cidadão)
+                      </h6>
+                      <p class="text-std-2 text-std-secondary mb-0">
+                        React Native com Expo (v54.0), Expo Router (File-based), NativeWind / TailwindCSS,
+                        react-native-maps e OpenStreetMap Overpass API + Google Places API.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-12 col-lg-12 mb-3">
+                <div class="card-icon py-3 container-fluid bg-white">
+                  <div class="d-flex align-items-center">
+                    <div class="d-flex align-items-center bg-light border-rounded px-4 justify-content-center py-3">
+                      <img src="%C3%89%20mesmo%20F%C3%A1cil%20_%20FaciPay_files/facipay_percentage_icon__PFX.png"
+                        width="25">
+                    </div>
+                    <div class="px-3">
+                      <h6 class="font-weight-medium text-darken mb-0 text-std-2 text-left font-weight-bold">
+                        Portal Web (Provedores / Hospitais)
+                      </h6>
+                      <p class="text-std-2 text-std-secondary mb-0">
+                        React 19 + Vite, Gerenciamento de Estado com Zustand, Lucide React, TailwindCSS e WebSockets /
+                        Socket.io para telemetria ao vivo.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-12 col-lg-12 mb-3">
+                <div class="card-icon py-3 container-fluid bg-white">
+                  <div class="d-flex align-items-center">
+                    <div class="d-flex align-items-center bg-light border-rounded px-4 justify-content-center py-3">
+                      <img src="%C3%89%20mesmo%20F%C3%A1cil%20_%20FaciPay_files/facipay_coins_icon__PFX.png" width="25">
+                    </div>
+                    <div class="px-3">
+                      <h6 class="font-weight-medium text-darken mb-0 text-std-2 text-left font-weight-bold">
+                        Impacto ODS 3 da ONU
+                      </h6>
+                      <p class="text-std-2 text-std-secondary mb-0">
+                        Alinhado diretamente com o Objetivo de Desenvolvimento Sustentável 3 (Saúde de Qualidade e
+                        Bem-Estar).
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="container-fluid py-5 bg-country section" id="faqs">
+    <div class="container py-5 px-sm-0">
+      <div class="row px-sm-0 align-items-center justify-content-center">
+
+        <div class="col-12 col-lg-5 mr-auto">
+          <h6 class="text-darken text-std-1 mb-5 font-weight-bold big-font-0 mt-0">
+            Perguntas Frequentes (FAQ)
+          </h6>
+          <p class="text-std-2 big-font-2">
+            Precisa de mais informações sobre o SaúdeLink? Envie uma mensagem para a nossa equipa.
+          </p>
+          <a href="#"
+            class="btn btn-outline-dark btn-std-radius font-weight-bold w-x-sm d-inline-flex align-items-center text-std-1 px-4 py-2 d-inline-block">
+            Falar Conosco
+            <i class="bi bi-envelope-fill ml-2 icon-btn"></i>
+          </a>
+        </div>
+
+        <div class="col-12 col-lg-7 pb-3">
+
+          <div class="container-fluid">
+            <div class="content-displayer border-bottom on-hover">
+              <div class="content-displayer-header">
+                <h6 class="text-darken text-std-2 mb-0 big-font-1 font-weight-bold">
+                  Como funciona a busca "Sintoma → Hospital"?
+                </h6>
+                <i class="bi bi-chevron-down icon-btn faq-icon"></i>
+              </div>
+              <div class="content-displayer-info hidden">
+                <p class="text-std-2 text-secondary">
+                  O utilizador pesquisa o sintoma (ex.: "Dor no Peito", "Febre Alta" ou "Fratura Óssea") e o sistema faz
+                  o matching instantâneo com os hospitais mais próximos equipados com a especialidade e leitos
+                  disponíveis.
+                </p>
+              </div>
+            </div>
+
+            <div class="content-displayer border-bottom on-hover">
+              <div class="content-displayer-header">
+                <h6 class="text-darken text-std-2 mb-0 big-font-1 font-weight-bold">
+                  O aplicativo móvel tem algum custo para o cidadão?
+                </h6>
+                <i class="bi bi-chevron-down icon-btn faq-icon"></i>
+              </div>
+              <div class="content-displayer-info hidden">
+                <p class="text-std-2 text-secondary mb-0">
+                  Não. O app móvel é 100% gratuito para o cidadão para buscas, rotas de emergência, Ficha Médica SOS e
+                  emissão do ID de atendimento prioritário.
+                </p>
+              </div>
+            </div>
+
+            <div class="content-displayer on-hover">
+              <div class="content-displayer-header">
+                <h6 class="text-darken text-std-2 mb-0 big-font-1 font-weight-bold">
+                  Como os hospitais mantêm sua capacidade atualizada no portal?
+                </h6>
+                <i class="bi bi-chevron-down icon-btn faq-icon"></i>
+              </div>
+              <div class="content-displayer-info hidden">
+                <p class="text-std-2 text-secondary mb-0">
+                  Os hospitais acedem ao Portal Web SaaS (React 19 + Zustand) onde a equipa de triagem atualiza
+                  instantaneamente o estado da UTI, leitos gerais, oxigénio e banco de sangue via WebSockets.
+                </p>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- DOWNLOAD APP SECTION -->
+  <section class="container-fluid bg-light" id="download-app">
+    <div class="container">
+      <div class="row align-items-center justify-content-between">
+
+        <div class="col-12 col-lg-8 py-5 px-4 px-sm-0 mx-auto">
+          <div class="container-fluid py-5 px-sm-0 px-5">
+            <h6 class="text-darken text-std-1 text-center font-weight-bold big-font mt-3">
+              Faça já o download do App SaúdeLink.
+            </h6>
+            <p class="text-std-2 text-darken text-center">
+              Tenha o direcionamento médico de emergência e a sua Ficha Médica SOS sempre à mão.
+            </p>
+            <div class="row mt-5 justify-content-center download-app-holder">
+              <a href="#">
+                <img src="%C3%89%20mesmo%20F%C3%A1cil%20_%20FaciPay_files/download_from_playstore__PFX.png"
+                  class="mr-5 mt-2 download-ios" width="255">
+              </a>
+              <a href="#">
+                <img src="%C3%89%20mesmo%20F%C3%A1cil%20_%20FaciPay_files/download_from_google__PFX.png"
+                  class="ml-5 mt-2 download-android" width="280">
+              </a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="w-100 pb-4 pt-5">
+      <div class="grid-container">
+        <div class="row justify-content-center text-darken">
+
+          <div class="col-md-6 pt-3">
+            <div class="container-fluid flex flex-col gap-2 text-center justify-center items-center">
+              <div class="text-light text-std-2 sm-font mt-4 mb-4 text-center">
+                O SaúdeLink é uma plataforma health-tech de dupla vertente (Mobile + Web SaaS) que conecta pacientes aos
+                cuidados certos no tempo certo. O nosso objetivo é eliminar a peregrinação hospitalar e reduzir o tempo
+                de resposta em emergências médicas em Angola e mercados emergentes.
+              </div>
+              <a href="#provider-portal" class="text-light sm-font text-std-2 ml-4 header-link text-underline">
+                Portal dos Hospitais
+              </a>
+              <a href="#" class="text-light sm-font text-std-2 ml-4 header-link text-underline">
+                Políticas de Privacidade
+              </a>
+              <a href="#" class="text-light sm-font text-std-2 ml-4 header-link text-underline">
+                Termos e Condições
+              </a>
+            </div>
+          </div>
+          <div class="col-12 col-lg-12 sm-font border-x-light-top-std mt-5 pb-3">
+            <h6 class="text-center font-weight-normal text-uppercase text-light mt-5 mb-3">
+              © SaúdeLink — Onde a urgência encontra o cuidado. Alinhado com ODS 3 da ONU.
+            </h6>
+            <p class="text-center text-light">Copyright 2026 • Todos os direitos reservados • SaúdeLink Health-Tech</p>
+            <div class="mt-3">
+              <p class="text-center text-std-2 text-x-light-blue-2 big-font-2">
+                From Angola, with love <i class="bi bi-heart-fill ml-2 mr-2 text-danger"></i>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- MODAL CONSULTA REF-XXXXX (ID DE ATENDIMENTO PRIORITÁRIO) -->
+  <div class="modal fade" id="pay-reference-modal">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content" style="border-radius: 1rem;">
+
+        <!-- Modal Header -->
+        <div class="modal-header border-bottom-0">
+          <h4 class="modal-title text-std-1 font-weight-medium text-darken">Validar ID de Atendimento (REF-XXXXX)</h4>
+          <button type="button" class="close" data-dismiss="modal">×</button>
+        </div>
+
+        <!-- Modal body -->
+        <div class="modal-body">
+          <div class="d-flex align-items-center mb-4">
+            <i class="bi bi-hospital-fill text-danger" style="font-size: 50px;"></i>
+            <div class="ml-3">
+              <p class="text-darken sm-font text-std-2 big-font-2 mb-0">
+                Digite o código de atendimento (ex.: REF-84920) gerado pelo App Mobile para verificar a pré-triagem do
+                paciente.
+              </p>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <input type="text" placeholder="Ex. REF-84920" class="rounded form-control py-3 big-font-1 text-std-2"
+              id="reference-number-input">
+          </div>
+        </div>
+
+        <!-- Modal footer -->
+        <div class="modal-footer border-top-0 pb-4">
+          <button disabled="disabled" id="btn-search-reference"
+            class="btn btn-standard font-weight-bold justify-content-center scroll-link d-flex w-100 align-items-center text-std-1 px-4 py-3">
+            Consultar Pré-Triagem
+            <i class="bi bi-arrow-right-circle-fill ml-2 icon-btn"></i>
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="%C3%89%20mesmo%20F%C3%A1cil%20_%20FaciPay_files/mapbox-gl__PFX.js"></script>
+  <script src="%C3%89%20mesmo%20F%C3%A1cil%20_%20FaciPay_files/ScrollToPlugin.min__PFX.js"></script>
+  <script src="%C3%89%20mesmo%20F%C3%A1cil%20_%20FaciPay_files/jquery.min__PFX.js"></script>
+  <script src="%C3%89%20mesmo%20F%C3%A1cil%20_%20FaciPay_files/modernizr.custom.min__PFX.js"></script>
+  <script src="%C3%89%20mesmo%20F%C3%A1cil%20_%20FaciPay_files/iscroll-probe__PFX.js"></script>
+  <script src="%C3%89%20mesmo%20F%C3%A1cil%20_%20FaciPay_files/ScrollMagic.min__PFX.js"></script>
+  <script src="%C3%89%20mesmo%20F%C3%A1cil%20_%20FaciPay_files/animation.gsap.min__PFX.js"></script>
+  <script src="%C3%89%20mesmo%20F%C3%A1cil%20_%20FaciPay_files/debug.addIndicators.min__PFX.js"></script>
+  <script src="%C3%89%20mesmo%20F%C3%A1cil%20_%20FaciPay_files/gsap.min__PFX.js"></script>
+  <script src="%C3%89%20mesmo%20F%C3%A1cil%20_%20FaciPay_files/CSSRulePlugin.min__PFX.js"></script>
+  <script src="%C3%89%20mesmo%20F%C3%A1cil%20_%20FaciPay_files/jquery-ui.min__PFX.js" crossorigin="anonymous"></script>
+  <script src="%C3%89%20mesmo%20F%C3%A1cil%20_%20FaciPay_files/popper.min__PFX.js"></script>
+  <script src="%C3%89%20mesmo%20F%C3%A1cil%20_%20FaciPay_files/jquery.min_002__PFX.js"></script>
+  <script src="%C3%89%20mesmo%20F%C3%A1cil%20_%20FaciPay_files/bootstrap.min__PFX.js"></script>
+
+  <script type="text/javascript">
+    $('.tarifs-select button').on('click', function () {
+      $('.tarifs-select button').removeClass('active');
+      $(this).addClass('active');
+    });
+
+    $('.content-displayer').on('click', function (e) {
+      $contentInfo = $(this).find('.content-displayer-info');
+      var $icon = $(this).find('.faq-icon');
+      if (!$($contentInfo).hasClass('active')) {
+        $($contentInfo).addClass('active');
+        $icon.removeClass('bi-chevron-down').addClass('bi-chevron-up');
+      } else {
+        $contentInfo.removeClass('active');
+        $icon.removeClass('bi-chevron-up').addClass('bi-chevron-down');
+      }
+    });
+
+    $('.btn-toggle-menu').on('click', function (e) {
+      if ($('#collapsibleNavbarSm').hasClass('shown')) {
+        $('#collapsibleNavbarSm').hide();
+        $('#collapsibleNavbarSm').removeClass('shown');
+      } else {
+        $('#collapsibleNavbarSm').show();
+        $('#collapsibleNavbarSm').addClass('shown');
+      }
+    });
+
+    $('#reference-number-input').on('input', function (event) {
+      if ($(this).val() === "")
+        $('#btn-search-reference').attr('disabled', true);
+      else
+        $('#btn-search-reference').attr('disabled', false);
+    });
+
+    $('#btn-search-reference').on('click', function (e) {
+      let nuReference = $('#reference-number-input').val();
+      alert('Consultando Atendimento: ' + nuReference);
+    });
+
+    $(function () {
+      $("a.scroll-link").click(function (event) {
+        event.preventDefault();
+        if ($($(this).attr('href')).length) {
+          $("html, body").animate({
+            scrollTop: $($(this).attr("href")).offset().top
+          }, 600);
+        }
+      });
+    });
+
+    $('.nav-link').click(function () {
+      $('.nav-link').removeClass('active');
+      $(this).addClass('active');
+    });
+
+    $(document).ready(function () {
+      var controller = new ScrollMagic.Controller();
+
+      var pinBeginScene = new ScrollMagic.Scene({
+        triggerElement: '#functionalities',
+        reverse: false
+      }).setClassToggle('#functionalities', 'fade-in').addTo(controller);
+
+      var scene1 = new ScrollMagic.Scene({
+        triggerElement: '#download-app'
+      })
+        .setClassToggle('#download-app', 'active')
+        .addTo(controller);
+
+      var scene7 = new ScrollMagic.Scene({
+        triggerElement: '#faqs'
+      })
+        .setClassToggle('#faqs', 'fade-in')
+        .addTo(controller);
+    });
+  </script>
+</body>
+
+</html>

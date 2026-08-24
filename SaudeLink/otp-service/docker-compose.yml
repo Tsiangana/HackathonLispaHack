@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  otp-service:
+    build: .
+    container_name: saudelink-otp-service
+    restart: always
+    environment:
+      - PORT=3000
+      - SMTP_HOST=${SMTP_HOST:-smtp.gmail.com}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_SECURE=${SMTP_SECURE:-false}
+      - SMTP_USER=${SMTP_USER}
+      - SMTP_PASS=${SMTP_PASS}
+      - SMTP_FROM=${SMTP_FROM:-"SaúdeLink" <no-reply@saudelink.ao>}
+    ports:
+      - "3000:3000"
+    labels:
+      - "traefik.enable=true"
+      # Traefik Router configuration
+      - "traefik.http.routers.saudelink-otp.rule=Host(`otp.saudelink.ao`) || Host(`207.180.238.15`)"
+      - "traefik.http.routers.saudelink-otp.entrypoints=web,websecure"
+      - "traefik.http.services.saudelink-otp.loadbalancer.server.port=3000"
+    networks:
+      - traefik-net
+      - default
+
+networks:
+  traefik-net:
+    external: true

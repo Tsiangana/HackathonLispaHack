@@ -6,6 +6,7 @@ import {
 } from 'lucide-react-native';
 import { useEffect, useRef, useState } from 'react';
 import {
+  ActivityIndicator,
   Animated,
   NativeSyntheticEvent,
   Pressable,
@@ -20,19 +21,22 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { colors } from '@/constants/colors';
-import { supabase } from '@/lib/supabase';
+import { sendOtpCode, verifyOtpCode } from '@/services/otpService';
 
 export default function EmailLoginScreen() {
   const [step, setStep] = useState<1 | 2>(1);
   const [email, setEmail] = useState('');
   const [emailFocused, setEmailFocused] = useState(false);
   const [emailError, setEmailError] = useState('');
+  const [loadingEmail, setLoadingEmail] = useState(false);
 
   // OTP 6 digits state
   const OTP_LENGTH = 6;
   const [otp, setOtp] = useState<string[]>(Array(OTP_LENGTH).fill(''));
   const [otpFocusedIndex, setOtpFocusedIndex] = useState<number | null>(null);
   const [otpError, setOtpError] = useState('');
+  const [loadingVerify, setLoadingVerify] = useState(false);
+  const [loadingResend, setLoadingResend] = useState(false);
   const [resendTimer, setResendTimer] = useState(30);
   const [canResend, setCanResend] = useState(false);
 
@@ -98,22 +102,25 @@ export default function EmailLoginScreen() {
     }
 
     setEmailError('');
+    setLoadingEmail(true);
 
-    const { error } = await supabase.auth.signInWithOtp({
-      email: email.trim().toLowerCase(),
-    });
+    try {
+      const result = await sendOtpCode(email);
 
-    if (error) {
-      setEmailError(error.message);
-      return;
+      if (!result.success) {
+        setEmailError(result.message || 'Erro ao enviar código. Tenta novamente.');
+        return;
+      }
+
+      setOtp(Array(OTP_LENGTH).fill(''));
+      setOtpError('');
+      setResendTimer(30);
+      setCanResend(false);
+
+      animateTransition(2);
+    } finally {
+      setLoadingEmail(false);
     }
-
-    setOtp(Array(OTP_LENGTH).fill(''));
-    setOtpError('');
-    setResendTimer(30);
-    setCanResend(false);
-
-    animateTransition(2);
   };
 
   const handleOtpChange = (text: string, index: number) => {
@@ -151,22 +158,26 @@ export default function EmailLoginScreen() {
   };
 
   const handleResendCode = async () => {
-    if (!canResend) return;
+    if (!canResend || loadingResend) return;
 
-    const { error } = await supabase.auth.signInWithOtp({
-      email: email.trim().toLowerCase(),
-    });
-
-    if (error) {
-      setOtpError(error.message);
-      return;
-    }
-
-    setOtp(Array(OTP_LENGTH).fill(''));
-    setResendTimer(30);
-    setCanResend(false);
+    setLoadingResend(true);
     setOtpError('');
-    inputRefs.current[0]?.focus();
+
+    try {
+      const result = await sendOtpCode(email);
+
+      if (!result.success) {
+        setOtpError(result.message || 'Erro ao reenviar código.');
+        return;
+      }
+
+      setOtp(Array(OTP_LENGTH).fill(''));
+      setResendTimer(30);
+      setCanResend(false);
+      inputRefs.current[0]?.focus();
+    } finally {
+      setLoadingResend(false);
+    }
   };
 
   const handleVerifyOtp = async () => {
@@ -178,19 +189,20 @@ export default function EmailLoginScreen() {
     }
 
     setOtpError('');
+    setLoadingVerify(true);
 
-    const { error } = await supabase.auth.verifyOtp({
-      email: email.trim().toLowerCase(),
-      token: fullOtp,
-      type: 'email',
-    });
+    try {
+      const result = await verifyOtpCode(email, fullOtp);
 
-    if (error) {
-      setOtpError('Código inválido ou expirado.');
-      return;
+      if (!result.success) {
+        setOtpError(result.message || 'Código inválido ou expirado.');
+        return;
+      }
+
+      router.replace('/(app)/(tabs)');
+    } finally {
+      setLoadingVerify(false);
     }
-
-    router.replace('/(app)/(tabs)');
   };
 
   const isOtpComplete = otp.join('').length === OTP_LENGTH;
@@ -298,11 +310,15 @@ export default function EmailLoginScreen() {
 
                 {/* Submit Email Button */}
                 <Pressable
+                  disabled={loadingEmail}
                   onPress={handleContinueEmail}
-                  className="bg-brand-red rounded-full py-4 items-center active:opacity-90"
+                  className="bg-brand-red rounded-full py-4 items-center flex-row justify-center gap-2 active:opacity-90 disabled:opacity-60"
                 >
+                  {loadingEmail ? (
+                    <ActivityIndicator size="small" color="#FFFFFF" />
+                  ) : null}
                   <Text className="text-base font-nunito-bold text-white tracking-wide">
-                    Continuar
+                    {loadingEmail ? 'A enviar código...' : 'Continuar'}
                   </Text>
                 </Pressable>
               </View>
@@ -321,6 +337,7 @@ export default function EmailLoginScreen() {
 
                   {/* Displayed Email pill with edit option */}
                   <TouchableOpacity
+                    disabled={loadingVerify || loadingResend}
                     onPress={() => animateTransition(1)}
                     className="flex-row items-center gap-1.5 bg-slate-100 border border-slate-200 rounded-full px-3.5 py-1.5 mt-3 active:bg-slate-200"
                   >
@@ -360,6 +377,7 @@ export default function EmailLoginScreen() {
                             keyboardType="number-pad"
                             maxLength={1}
                             selectTextOnFocus
+                            editable={!loadingVerify}
                             className="text-2xl font-nunito-extrabold text-healthcare-900 text-center w-full h-full"
                           />
                         </View>
@@ -382,11 +400,15 @@ export default function EmailLoginScreen() {
                 <View className="items-center mb-8">
                   {canResend ? (
                     <TouchableOpacity
+                      disabled={loadingResend}
                       onPress={handleResendCode}
-                      className="active:opacity-75"
+                      className="active:opacity-75 flex-row items-center gap-2"
                     >
+                      {loadingResend ? (
+                        <ActivityIndicator size="small" color={colors.primaryRed} />
+                      ) : null}
                       <Text className="text-sm font-nunito-bold text-brand-red">
-                        Reenviar novo código
+                        {loadingResend ? 'A reenviar...' : 'Reenviar novo código'}
                       </Text>
                     </TouchableOpacity>
                   ) : (
@@ -401,12 +423,16 @@ export default function EmailLoginScreen() {
 
                 {/* Verify & Enter Button */}
                 <Pressable
+                  disabled={loadingVerify}
                   onPress={handleVerifyOtp}
-                  className={`rounded-full py-4 items-center active:opacity-90 ${isOtpComplete ? 'bg-brand-red' : 'bg-brand-red/80'
+                  className={`rounded-full py-4 items-center flex-row justify-center gap-2 active:opacity-90 disabled:opacity-60 ${isOtpComplete ? 'bg-brand-red' : 'bg-brand-red/80'
                     }`}
                 >
+                  {loadingVerify ? (
+                    <ActivityIndicator size="small" color="#FFFFFF" />
+                  ) : null}
                   <Text className="text-base font-nunito-bold text-white tracking-wide">
-                    Confirmar e Entrar
+                    {loadingVerify ? 'A verificar...' : 'Confirmar e Entrar'}
                   </Text>
                 </Pressable>
               </View>

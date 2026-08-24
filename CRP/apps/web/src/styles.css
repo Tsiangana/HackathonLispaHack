@@ -1,0 +1,127 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Nunito:ital,wght@0,200..1000;1,200..1000&family=Quicksand:wght@300..700&family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: "Nunito", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  background: #F8F9FA;
+  color: #111118;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+/* Dot-grid canvas background */
+.canvas-grid {
+  background-color: #F8F9FA;
+  background-image: radial-gradient(circle, #d4d4d8 1.2px, transparent 1.2px);
+  background-size: 18px 18px;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d1d1dc;
+  border-radius: 99px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #9898ab;
+}
+
+/* Custom Toggle Switch */
+.topbar-toggle-checkbox {
+  display: none;
+}
+
+.topbar-toggle-slider {
+  width: 40px;
+  height: 20px;
+  background-color: #d4d4d8;
+  /* zinc-300 */
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  border: 2px solid transparent;
+  transition: .3s;
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.25) inset;
+  cursor: pointer;
+}
+
+.topbar-toggle-slider::before {
+  content: '';
+  display: block;
+  width: 100%;
+  height: 100%;
+  background-color: #fff;
+  transform: translateX(-20px);
+  border-radius: 12px;
+  transition: .3s;
+  box-shadow: 0 0 10px 3px rgba(0, 0, 0, 0.25);
+}
+
+.topbar-toggle-checkbox:checked~.topbar-toggle-slider::before {
+  transform: translateX(20px);
+  box-shadow: 0 0 10px 3px rgba(0, 0, 0, 0.25);
+}
+
+.topbar-toggle-checkbox:checked~.topbar-toggle-slider {
+  background-color: #2196F3;
+}
+
+.topbar-toggle-checkbox:active~.topbar-toggle-slider::before {
+  transform: translate(0);
+}
+
+/* ── Primary CTA Button — Gradient with scale active effect ── */
+.btn-primary {
+  position: relative;
+  padding: 10px 22px;
+  border-radius: 8px;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  background-image: linear-gradient(-60deg, #ff5858 0%, #f09819 100%);
+  transition: all 0.2s ease-in-out;
+  user-select: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-primary:hover {
+  opacity: 0.95;
+}
+
+.btn-primary:active {
+  transform: scale(0.95);
+}

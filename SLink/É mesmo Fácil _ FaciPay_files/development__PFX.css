@@ -1,0 +1,626 @@
+ .section-x-rounded {
+
+     border-bottom-right-radius: 20rem;
+ }
+
+ /*
+  ##Device = Most of the Smartphones Mobiles (Portrait)
+  ##Screen = B/w 320px to 479px
+*/
+ @media (min-width: 320px) and (max-width: 480px) {
+
+    .banner {
+        background: url(../assets/images/banner_sm.png) no-repeat;
+        background-size: cover;
+        margin-top: 7rem !important;
+        background-position-x: 54%;
+    }
+
+    .ml-x-sm-0{
+        margin-left: 0 !important;
+    }
+
+    .bg-country {
+        background: #fafafa;
+    }
+
+
+    
+    #pinContainer{
+
+        height: auto !important;
+    }
+
+        .img-container{
+
+            height: 100vh!important;
+            background: #000;
+        }
+     .py-1-sm{
+
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+
+     }
+
+     .px-sm-0{
+
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+
+     }
+
+     .px-x-sm-0{
+
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+
+     }
+
+     .px-sm-1{
+
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+
+     }
+
+     .px-x-sm-1{
+
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+
+     }
+
+     .translate-section {
+
+         transform: translateY(-8rem);
+
+     }
+
+     .sm-title-1 {
+
+         font-size: 1.4rem !important;
+     }
+
+     .img-responsive-h {
+
+         height: 100vh !important;
+     }
+
+     .img {
+
+         height: 100vh !important;
+     }
+
+     .text-h-sm {
+         font-size: 2rem !important;
+     }
+
+     .banner-general-light{
+        padding-top: 5rem !important;
+        font-size: 2rem !important;
+     }
+
+     .download-app-holder a{
+        display: inline-flex;
+     }
+     .download-app-holder a img {
+
+        margin: auto !important;
+        margin-top: 1rem !important;
+        
+     }
+
+     .download-ios{
+        width: 62% !important;
+     }
+
+     .download-android{
+        width: 100% !important;
+     }
+
+     .img-holder-aside{
+
+        height: 260px;
+     }
+
+     .img-holder-aside img{
+
+        height: 260px;
+     }
+
+     .main-company-owner{
+        background: var(--std-bg-2);
+        position: absolute;
+        left: 0;
+        top: 0;
+        padding: .7rem 1.3rem;
+        height: 100%;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        }
+
+    .main-company-owner-sm{
+        background: var(--std-bg-2);
+        position: absolute;
+        left: 0;
+        top: 0;
+        padding: .7rem 1.3rem;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        }
+
+
+    .main-btns-holder{
+        flex-wrap: wrap;
+    }
+
+    .main-btns-holder a {
+        padding: 1rem 1rem !important;
+        justify-content: space-between;
+    }
+
+    .main-img{
+
+        width: 687px !important;
+        transform: translateX(-141px);
+        right: 50%;
+
+    
+    }
+     .banner-holder {
+
+         padding-top: 100px !important;
+     }
+
+     .banner {
+
+         height: 100vh !important;
+     }
+
+     #btn-access {
+
+         transform: translate(12px, 31px) !important;
+     }
+
+     .first-tip {
+         margin-top: 65px !important;
+         height: auto !important;
+     }
+
+     .jumbotron-fluid {
+         background: linear-gradient(rgba(0, 0, 0, .4), rgba(0, 0, 0, .3)) !important;
+     }
+
+     .date-item {
+         font-size: 2.5rem !important;
+     }
+
+     #particles-js {
+         height: 100% !important;
+     }
+
+     .navbar-nav {
+         margin-top: 6% !important;
+     }
+
+     .navbar-brand,
+     .navbar-nav {
+         text-align: center !important;
+     }
+
+     .navbar-button {
+         left: 50%;
+         transform: translateX(-25%);
+     }
+
+     .outsider-brand {
+         display: block !important;
+     }
+
+     .insider-brand {
+         display: none !important;
+     }
+
+     .watch-more-arrow {
+         display: none !important;
+     }
+
+     .typewriter h1 {
+         overflow: hidden;
+         /* Ensures the content is not revealed until the animation */
+         border-right: .15em solid orange;
+         /* The typwriter cursor */
+         white-space: nowrap;
+         /* Keeps the content on a single line */
+         margin: 0 auto;
+         /* Gives that scrolling effect as the typing happens */
+         letter-spacing: .15em;
+         /* Adjust as needed */
+         font-size: 2rem;
+         animation: getin .45s linear;
+     }
+
+     .typewriter h5 {
+
+         animation: getlight 3s linear;
+     }
+
+     /* The typing effect */
+     @keyframes getin {
+         from {
+             -webkit-transform: translateY(-20px);
+             -moz-transform: translateY(-20px);
+             -ms-transform: translateY(-20px);
+             -o-transform: translateY(-20px);
+             transform: translateY(-20px);
+         }
+
+         to {
+
+             -webkit-transform: translateY(0);
+             -moz-transform: translateY(0);
+             -ms-transform: translateY(0);
+             -o-transform: translateY(0);
+             transform: translateY(0);
+         }
+     }
+
+     .border-x-bottom-sm {
+         border-bottom: thin solid rgba(255, 255, 255, .08) !important;
+     }
+
+     .border-x-sm {
+         border: thin solid rgba(255, 255, 255, .08) !important;
+     }
+
+     .border-x-sm-0 {
+
+         border: none !important;
+     }
+
+     .text-center-x-sm {
+         text-align: center !important;
+         text-align: -moz-center !important;
+         text-align: -webkit-center !important;
+     }
+
+     .w-x-sm {
+         width: 100% !important;
+     }
+
+     #facipoint-selling-section img {
+        border-bottom-left-radius: 3rem;
+        border-bottom-right-radius: 3rem;
+    }
+
+     .typewriter h1 {
+         margin-top: 4.8rem !important;
+         font-size: 1.5rem;
+         overflow: hidden !important;
+         /* Ensures the content is not revealed until the animation */
+         border-right: none !important;
+         /* The typwriter cursor */
+         white-space: normal !important;
+         /* Keeps the content on a single line */
+         padding-left: 0 !important;
+     }
+
+     .pt-x-sm-1 {
+         padding-top: 1rem !important;
+     }
+
+     .pt-x-sm-0 {
+         padding-top: 1rem !important;
+     }
+
+     .px-sm-0{
+        padding-left: 0rem !important;
+        padding-right: 0rem !important;
+     }
+     
+     .btn-pay-reference{
+        margin-left: auto;
+        transform: 
+        translateX(1rem);
+     }
+     .pl-x-sm-0 {
+        padding-left: 0rem !important;
+     }
+     
+     .mt-x-sm-1 {
+         margin-top: .45rem !important;
+         -webkit-margin-top: .45rem !important;
+         -moz-margin-top: .45rem !important;
+     }
+
+     .mb-x-sm-3 {
+         margin-bottom: 3rem !important;
+         -webkit-margin-bottom: 3rem !important;
+         -moz-margin-bottom: 3rem !important;
+     }
+
+
+     .typewriter h5 {
+         padding-left: 0 !important;
+     }
+
+     .main-container {
+         height: auto !important;
+     }
+
+     .main-container-child {
+         height: auto !important;
+     }
+
+     .hidden-sm {
+
+         display: none;
+         margin-bottom: 1rem;
+     }
+
+     .tile {
+         height: 400px !important;
+     }
+
+     .shown-sm {
+         display: block !important;
+     }
+
+     #cart-list {
+         width: 100%;
+         top: 0;
+         left: 0;
+         /* transform: translate(0, 95%); */
+         transform: translate(0, 0);
+         overflow: scroll;
+         overflow-y: scroll;
+         z-index: 99999999999999;
+         position: fixed !important;
+         height: 100%;
+     }
+
+     #cart-list-modal .modal-dialog {
+         min-width: auto;
+     }
+
+     .cart-item-img {
+         margin-top: 1rem;
+     }
+
+     .cart-item {
+         margin-top: 2rem;
+     }
+
+     .main-container-child-row {
+         height: auto !important;
+     }
+
+     .menu-toggler {
+         background: #343a40 !important;
+     }
+
+     .menu-toggler .nav-link {
+
+         color: #fafafa !important;
+     }
+
+     .menu-toggler .btn-outline-light {
+
+         border-color: #fafafa !important;
+         color: #fafafa !important;
+     }
+
+     .s-link,
+     .s-link2 {
+         display: none !important;
+     }
+
+     #logo {
+         top: -48px;
+         left: -73px !important;
+     }
+
+     .personal-holder {
+         border-right: none !important;
+     }
+
+     .navbar-toggler {
+
+         outline: var(--std-color) !important;
+     }
+
+     .items-container {
+
+         overflow: auto;
+         overflow-y: scroll !important;
+         height: 1290px !important;
+         flex-wrap: wrap !important;
+     }
+
+     .btn-previous-step,
+     .btn-next-step {
+
+         display: none !important;
+     }
+
+     #sm-menu {
+
+         animation: getin2 .1s linear;
+     }
+
+     /* The typing effect */
+     @keyframes getin2 {
+         from {
+             -webkit-transform: translateX(-90%);
+             -moz-transform: translateX(-90%);
+             -ms-transform: translateX(-90%);
+             -o-transform: translateX(-90%);
+             transform: translateX(-90%);
+         }
+
+         to {
+
+             -webkit-transform: translateX(0);
+             -moz-transform: translateX(0);
+             -ms-transform: translateX(0);
+             -o-transform: translateX(0);
+             transform: translateX(0);
+
+         }
+     }
+
+     .hide-menu {
+
+         animation: getin3 .1s linear !important;
+
+     }
+
+     /* The typing effect */
+     @keyframes getin3 {
+         from {
+             -webkit-transform: translateX(0%);
+             -moz-transform: translateX(0%);
+             -ms-transform: translateX(0%);
+             -o-transform: translateX(0%);
+             transform: translateX(0%);
+         }
+
+         to {
+
+             -webkit-transform: translateX(-99%);
+             -moz-transform: translateX(-99%);
+             -ms-transform: translateX(-99%);
+             -o-transform: translateX(-99%);
+             transform: translateX(-99%);
+
+         }
+     }
+
+     #btn-show-menu {
+
+         display: block !important;
+     }
+
+     .img-ico-1 img {
+
+         width: 180px !important;
+         margin-bottom: 4rem;
+         ;
+
+     }
+
+     .img-ico-1 .img-1 {
+
+         height: 258.17px !important;
+
+     }
+
+     .img-ico-1 .img-2 {
+
+         height: 340.2px !important;
+
+     }
+
+     .phones {
+
+         height: 180px !important;
+     }
+
+
+     .row-x-100 {
+
+         height: auto !important;
+     }
+
+     .banner-pr {
+
+         border-bottom-right-radius: 10rem !important;
+     }
+
+     .section-x-rounded {
+         border-bottom-right-radius: 10rem !important;
+     }
+
+     .submission-menu {
+         height: 127vh !important;
+     }
+
+     .commercial-banner {
+
+         background: url('../img/bannermobile.svg') 0 -20px !important;
+         background-size: cover !important;
+         height: 104vh !important;
+         background-repeat: no-repeat;
+     }
+
+     .not-found {
+         background: #fff !important;
+
+     }
+
+     .img {
+
+         background-attachment: unset !important;
+         background-position-x: 44% !important;
+     }
+
+ }
+
+ .waveHorizontals{
+	width: 100%;
+	height: 20px;
+	position:relative;
+	overflow:hidden;
+	
+	z-index:1; /* iOS safariで隙間が空くことへの対応 */
+}
+
+.waveHorizontal{
+	width: 200%;
+	height: 100%;
+	display: block;
+	position:absolute;
+	left:0; bottom:0;
+	background-repeat:repeat-x;
+	background-position:left bottom;
+	background-size:350px 100%;
+	transform-origin:0 100% 0;
+	
+	/* animation: move linear infinite; */
+	animation-name:move;
+	animation-timing-function:linear;
+	animation-iteration-count:infinite;
+}
+
+#waveHorizontal1{
+	background-image:url(http://www.greenmarble.jp/wave1.svg);
+	animation-delay: -2s;
+	animation-duration: 12s;	
+}
+#waveHorizontal2{
+	background-image:url(http://www.greenmarble.jp/wave2.svg);
+	animation-delay: -2s;
+	animation-duration: 5s;	
+}
+#waveHorizontal3{
+	background-image:url(http://www.greenmarble.jp/wave3.svg);
+	animation-delay: -1s;
+	animation-duration: 3s;
+}
+@keyframes move{
+	0% {		transform: translate(-175px,0px) scale(1,1);}
+	50% {		transform: translate(-87px,0px) scale(1,0.5);}
+	100% {	transform: translate(0px,0px) scale(1,1);}
+}
+.content{
+	height:300px;
+	position:relative;
+	background-color:#4c72c2;
+	/* iOS safariで隙間が空くことへの対応 */
+	margin:-1px 0;	
+	z-index:2;
+}

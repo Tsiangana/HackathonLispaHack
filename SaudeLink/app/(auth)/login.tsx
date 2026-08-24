@@ -10,8 +10,9 @@ import {
   Mail,
   Stethoscope,
 } from 'lucide-react-native';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
+  ActivityIndicator,
   Animated,
   Pressable,
   ScrollView,
@@ -143,6 +144,7 @@ function MiniBubble({
 export default function LoginScreen() {
   const slideUp = useRef(new Animated.Value(30)).current;
   const fadeIn = useRef(new Animated.Value(0)).current;
+  const [activeLoading, setActiveLoading] = useState<string | null>(null);
 
   const extractParamsFromUrl = (url: string) => {
     const hash = url.split('#')[1];
@@ -156,6 +158,7 @@ export default function LoginScreen() {
 
   const handleOAuthLogin = async (provider: Provider) => {
     try {
+      setActiveLoading(provider);
       const redirectUrl = Linking.createURL('/(auth)/login');
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider,
@@ -180,6 +183,8 @@ export default function LoginScreen() {
       }
     } catch (err) {
       console.error(`${provider} login error:`, err);
+    } finally {
+      setActiveLoading(null);
     }
   };
 
@@ -212,6 +217,7 @@ export default function LoginScreen() {
           <View className="flex-row items-center justify-between h-10 mb-2">
             <TouchableOpacity
               onPress={() => router.replace('/(auth)/intro')}
+              disabled={activeLoading !== null}
               className="w-12 h-12 rounded-full bg-white border border-slate-200 items-center justify-center active:bg-slate-100"
             >
               <ArrowLeft size={20} color={colors.textDark} strokeWidth={2} />
@@ -273,45 +279,71 @@ export default function LoginScreen() {
           >
             {/* Primary — Email Login */}
             <Pressable
-              onPress={() => router.push('/(auth)/email-login')}
-              className="flex-row items-center justify-center gap-3 bg-brand-red rounded-full py-4 px-5 active:opacity-90"
+              disabled={activeLoading !== null}
+              onPress={() => {
+                setActiveLoading('email');
+                router.push('/(auth)/email-login');
+              }}
+              className="flex-row items-center justify-center gap-3 bg-brand-red rounded-full py-4 px-5 active:opacity-90 disabled:opacity-60"
             >
-              <Mail size={20} color="#FFF" strokeWidth={2.2} />
+              {activeLoading === 'email' ? (
+                <ActivityIndicator size="small" color="#FFFFFF" />
+              ) : (
+                <Mail size={20} color="#FFF" strokeWidth={2.2} />
+              )}
               <Text className="text-base font-nunito-bold text-white tracking-wide">
-                Continuar com Email
+                {activeLoading === 'email' ? 'A carregar...' : 'Continuar com Email'}
               </Text>
             </Pressable>
 
             {/* Secondary — Google Login (using exact Google SVG) */}
             <Pressable
+              disabled={activeLoading !== null}
               onPress={() => handleOAuthLogin('google')}
-              className="flex-row items-center justify-center gap-3 bg-white border border-slate-200 rounded-full py-4 px-5 active:bg-slate-50"
+              className="flex-row items-center justify-center gap-3 bg-white border border-slate-200 rounded-full py-4 px-5 active:bg-slate-50 disabled:opacity-60"
             >
-              <GoogleIcon size={20} />
+              {activeLoading === 'google' ? (
+                <ActivityIndicator size="small" color="#EA4335" />
+              ) : (
+                <GoogleIcon size={20} />
+              )}
               <Text className="text-base font-nunito-bold text-slate-700 tracking-wide">
-                Continuar com Google
+                {activeLoading === 'google' ? 'A ligar à Google...' : 'Continuar com Google'}
               </Text>
             </Pressable>
 
             {/* Secondary — Facebook Login (using exact Facebook SVG) */}
             <Pressable
+              disabled={activeLoading !== null}
               onPress={() => handleOAuthLogin('facebook')}
-              className="flex-row items-center justify-center gap-3 bg-white border border-slate-200 rounded-full py-4 px-5 active:bg-slate-50"
+              className="flex-row items-center justify-center gap-3 bg-white border border-slate-200 rounded-full py-4 px-5 active:bg-slate-50 disabled:opacity-60"
             >
-              <FacebookIcon size={20} />
+              {activeLoading === 'facebook' ? (
+                <ActivityIndicator size="small" color="#1877F2" />
+              ) : (
+                <FacebookIcon size={20} />
+              )}
               <Text className="text-base font-nunito-bold text-slate-700 tracking-wide">
-                Continuar com Facebook
+                {activeLoading === 'facebook' ? 'A ligar ao Facebook...' : 'Continuar com Facebook'}
               </Text>
             </Pressable>
 
             {/* Tertiary — SaúdeID / Quick Entry */}
             <Pressable
-              onPress={() => router.push('/(auth)/register')}
-              className="flex-row items-center justify-center gap-3 bg-healthcare-50 border border-brand-red/30 rounded-full py-4 px-5 active:opacity-90"
+              disabled={activeLoading !== null}
+              onPress={() => {
+                setActiveLoading('register');
+                router.push('/(auth)/register');
+              }}
+              className="flex-row items-center justify-center gap-3 bg-healthcare-50 border border-brand-red/30 rounded-full py-4 px-5 active:opacity-90 disabled:opacity-60"
             >
-              <HeartPulse size={20} color={colors.primaryRed} strokeWidth={2.2} />
+              {activeLoading === 'register' ? (
+                <ActivityIndicator size="small" color={colors.primaryRed} />
+              ) : (
+                <HeartPulse size={20} color={colors.primaryRed} strokeWidth={2.2} />
+              )}
               <Text className="text-base font-nunito-bold text-brand-red tracking-wide">
-                Criar Nova Conta
+                {activeLoading === 'register' ? 'A carregar...' : 'Criar Nova Conta'}
               </Text>
             </Pressable>
           </Animated.View>
@@ -321,7 +353,13 @@ export default function LoginScreen() {
             <Text className="text-sm font-nunito text-slate-500">
               Já tens uma conta?
             </Text>
-            <TouchableOpacity onPress={() => router.push('/(auth)/email-login')}>
+            <TouchableOpacity
+              disabled={activeLoading !== null}
+              onPress={() => {
+                setActiveLoading('login');
+                router.push('/(auth)/email-login');
+              }}
+            >
               <Text className="text-sm font-nunito-extrabold text-brand-red underline">
                 Entrar
               </Text>

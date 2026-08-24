@@ -1,35 +1,51 @@
-import { router } from 'expo-router';
-import { ChevronRight, Phone, Settings, X } from 'lucide-react-native';
-import { useState } from 'react';
-import { Linking, Modal, Pressable, Text, TouchableOpacity, View } from 'react-native';
+import { router } from "expo-router";
+import { ChevronRight, Phone, Settings, X } from "lucide-react-native";
+import { useState } from "react";
+import {
+  Image,
+  Linking,
+  Modal,
+  Pressable,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
-import { colors } from '@/constants/colors';
+import { colors } from "@/constants/colors";
 
-const CALL_CENTER_NUMBER = '+244 928 636 896';
+const CALL_CENTER_NUMBER = "+244 928 636 896";
 
 export function HomeHeader() {
   const [showCallModal, setShowCallModal] = useState(false);
 
   const handleCallCenter = () => {
     setShowCallModal(false);
-    Linking.openURL(`tel:${CALL_CENTER_NUMBER.replace(/\s/g, '')}`);
+    Linking.openURL(`tel:${CALL_CENTER_NUMBER.replace(/\s/g, "")}`);
   };
 
   return (
     <>
       <View className="flex-row items-center justify-between pt-2 pb-2">
-        <View>
-          <Text className="text-3xl font-nunito-bold text-brand-red tracking-tighter">
-            SAÚDELINK
-          </Text>
-          <TouchableOpacity className="flex-row items-center gap-0.5 mt-0.5">
-            <Text className="text-sm font-nunito-extrabold text-slate-800">
-              Nacional
+        <View className="flex-row items-center gap-2">
+          <Image
+            source={require("assets/images/logosemfundoremovebg.png")}
+            style={{ width: 48, height: 48 }}
+            resizeMode="contain"
+          />
+
+          <View>
+            <Text className="text-2xl font-nunito-bold text-brand-red tracking-tighter">
+              SAÚDELINK
             </Text>
-            <View className="w-4 h-4 rounded-full bg-slate-900 justify-center items-center ml-1">
-              <ChevronRight size={10} color="#FFFFFF" strokeWidth={3} />
-            </View>
-          </TouchableOpacity>
+            <TouchableOpacity className="flex-row items-center gap-0.5 mt-[-2px]">
+              <Text className="text-sm font-nunito-extrabold text-slate-800">
+                Nacional
+              </Text>
+              <View className="w-4 h-4 rounded-full bg-slate-900 justify-center items-center ml-1">
+                <ChevronRight size={10} color="#FFFFFF" strokeWidth={3} />
+              </View>
+            </TouchableOpacity>
+          </View>
         </View>
 
         <View className="flex-row items-center gap-2">
@@ -43,7 +59,7 @@ export function HomeHeader() {
 
           {/* Settings Icon */}
           <TouchableOpacity
-            onPress={() => router.push('/(app)/(tabs)/settings')}
+            onPress={() => router.push("/(app)/(tabs)/settings")}
             className="w-10 h-10 items-center justify-center active:opacity-60"
           >
             <Settings size={30} color={colors.textDark} strokeWidth={2} />
@@ -74,7 +90,8 @@ export function HomeHeader() {
                   Ligar para o Call Center?
                 </Text>
                 <Text className="text-sm font-nunito text-slate-500 leading-5">
-                  Será ligado para um operador do SaúdeLink que o pode auxiliar com urgências e encaminhamentos.
+                  Será ligado para um operador do SaúdeLink que o pode auxiliar
+                  com urgências e encaminhamentos.
                 </Text>
               </View>
               <TouchableOpacity

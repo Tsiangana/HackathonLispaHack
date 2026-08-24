@@ -1,0 +1,16 @@
+{
+  "name": "saudelink-otp-service",
+  "version": "1.0.0",
+  "description": "Serviço de envio e verificação de código OTP numérico de 6 dígitos para o SaúdeLink",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "nodemailer": "^6.9.16"
+  }
+}

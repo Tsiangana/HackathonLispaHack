@@ -2,6 +2,7 @@ import { router } from 'expo-router';
 import { ArrowLeft, Eye, EyeOff, Lock, Mail, User } from 'lucide-react-native';
 import { useState } from 'react';
 import {
+  ActivityIndicator,
   Pressable,
   ScrollView,
   StatusBar,
@@ -13,8 +14,8 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { colors } from '@/constants/colors';
-
 import { supabase } from '@/lib/supabase';
+import { sendOtpCode } from '@/services/otpService';
 
 export default function RegisterScreen() {
   const [name, setName] = useState('');
@@ -27,6 +28,18 @@ export default function RegisterScreen() {
   const [passwordFocused, setPasswordFocused] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const translateError = (msg?: string) => {
+    if (!msg) return 'Erro ao criar conta. Tenta novamente.';
+    const lower = msg.toLowerCase();
+    if (lower.includes('already registered') || lower.includes('already in use')) {
+      return 'Este email já está registado. Podes fazer login.';
+    }
+    if (lower.includes('weak') || lower.includes('password')) {
+      return 'A password é demasiado fraca. Usa pelo menos 6 caracteres.';
+    }
+    return msg;
+  };
 
   const handleRegister = async () => {
     if (!name.trim()) {
@@ -45,25 +58,40 @@ export default function RegisterScreen() {
     }
 
     setError('');
+    setLoading(true);
 
-    const { data, error: signUpError } = await supabase.auth.signUp({
-      email: email.trim().toLowerCase(),
-      password,
-      options: {
-        data: {
-          full_name: name.trim(),
+    try {
+      const cleanEmail = email.trim().toLowerCase();
+
+      // Create Supabase user profile
+      const { error: signUpError } = await supabase.auth.signUp({
+        email: cleanEmail,
+        password,
+        options: {
+          data: {
+            full_name: name.trim(),
+          },
         },
-      },
-    });
+      });
 
-    if (signUpError) {
-      setError(signUpError.message);
-      return;
+      if (signUpError) {
+        setError(translateError(signUpError.message));
+        return;
+      }
+
+      // Send 6-digit OTP code to user's email
+      const otpResult = await sendOtpCode(cleanEmail);
+      if (!otpResult.success) {
+        console.warn('OTP trigger warning:', otpResult.message);
+      }
+
+      // Redirect to OTP verification screen
+      router.replace('/(auth)/email-login');
+    } catch (err: any) {
+      setError(translateError(err?.message));
+    } finally {
+      setLoading(false);
     }
-
-    console.log('Supabase user created:', data.user);
-
-    router.replace('/(auth)/email-login');
   };
 
   return (
@@ -211,9 +239,9 @@ export default function RegisterScreen() {
           <Pressable
             onPress={handleRegister}
             disabled={loading}
-            className="bg-brand-red rounded-full py-4 items-center active:opacity-90 mb-6"
-            style={{ opacity: loading ? 0.6 : 1 }}
+            className="bg-brand-red rounded-full py-4 items-center flex-row justify-center gap-2 active:opacity-90 disabled:opacity-60 mb-6"
           >
+            {loading ? <ActivityIndicator size="small" color="#FFFFFF" /> : null}
             <Text className="text-base font-nunito-bold text-white tracking-wide">
               {loading ? 'A criar conta...' : 'Criar Conta'}
             </Text>
