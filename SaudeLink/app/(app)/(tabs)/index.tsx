@@ -24,8 +24,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { hospitals } from '@/data/hospitals';
 import { HomeHeader } from '@/features/home/components/HomeHeader';
+import { useHospitals } from '@/features/hospitals/hooks/useHospitals';
 import { HospitalNeed } from '@/types/hospital';
 
 // Priority emergency categories with icons
@@ -132,6 +132,8 @@ const EMERGENCY_PRIORITIES = [
 ] as const;
 
 export default function HomeScreen() {
+  const hospitals = useHospitals();
+
   /**
    * Smart Recommendation Handler:
    * Finds the best hospital for the specific emergency need and jumps
@@ -139,7 +141,7 @@ export default function HomeScreen() {
    */
   const handleQuickAccessPress = (needType: HospitalNeed, label: string) => {
     const matches = hospitals.filter((h) => {
-      if (needType === 'emergency') return h.resources.emergency;
+      if (needType === 'emergency') return h.resources.emergency || h.emergencyAvailable;
       if (needType === 'maternity') return h.resources.maternity;
       if (needType === 'pediatrics') return h.resources.pediatrics;
       if (needType === 'laboratory') return h.resources.laboratory;
@@ -147,17 +149,20 @@ export default function HomeScreen() {
       return true;
     });
 
-    const bestHospital = matches.length > 0 ? matches[0] : hospitals[0];
+    const bestHospital = matches.length > 0 ? matches[0] : (hospitals.length > 0 ? hospitals[0] : undefined);
 
     router.push({
       pathname: '/(app)/(tabs)/map',
       params: {
-        hospitalId: bestHospital.id,
+        hospitalId: bestHospital?.id,
         autoRoute: 'true',
         symptom: label,
       },
     });
   };
+
+  const countDisplay = hospitals.length > 0 ? hospitals.length : 12;
+  const firstHospitalId = hospitals[0]?.id;
 
   return (
     <SafeAreaView className="flex-1 bg-white">
@@ -179,7 +184,7 @@ export default function HomeScreen() {
             onPress={() =>
               router.push({
                 pathname: '/(app)/(tabs)/map',
-                params: { hospitalId: hospitals[0].id, autoRoute: 'true' },
+                params: { hospitalId: firstHospitalId, autoRoute: 'true' },
               })
             }
             className="rounded-3xl overflow-hidden h-48 active:opacity-90"
@@ -203,7 +208,7 @@ export default function HomeScreen() {
                 <View className="flex-row items-center gap-1.5">
                   <MapPin size={13} color="rgba(255,255,255,0.85)" strokeWidth={2.5} />
                   <Text className="text-xs font-nunito text-white/80">
-                    {hospitals.length} unidades encontradas • Luanda, Angola
+                    {`${countDisplay} unidades encontradas • Luanda, Angola`}
                   </Text>
                 </View>
               </View>
