@@ -1,9 +1,11 @@
 import { router } from 'expo-router';
 import { ArrowLeft, Check, Globe } from 'lucide-react-native';
-import { useState } from 'react';
-import { ScrollView, StatusBar, Text, TouchableOpacity, View } from 'react-native';
+import { useCallback, useEffect, useState } from 'react';
+import { ActivityIndicator, ScrollView, StatusBar, Text, TouchableOpacity, View } from 'react-native';
 
 import { SafeArea } from '@/components/layout/SafeArea';
+import { useAuth } from '@/context/AuthContext';
+import { supabase } from '@/lib/supabase';
 
 const LANGUAGES = [
   { id: 'pt-ao', name: 'Português (Angola)', flag: '🇦🇴', code: 'PT-AO' },
@@ -15,7 +17,83 @@ const LANGUAGES = [
 ];
 
 export default function LanguageSettingsScreen() {
+  const { session, loading: authLoading } = useAuth();
+
   const [selectedId, setSelectedId] = useState('pt-ao');
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  const loadSettings = useCallback(async (userId: string) => {
+    try {
+      setLoading(true);
+
+      const { data, error } = await supabase
+        .from('user_settings')
+        .select('preferred_language')
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      if (error) {
+        console.error('Erro ao carregar idioma:', error);
+        return;
+      }
+
+      if (!data) {
+        // Criar linha vazia para o utilizador
+        const { error: insertError } = await supabase
+          .from('user_settings')
+          .insert({ user_id: userId });
+
+        if (insertError) {
+          console.error('Erro ao criar user_settings:', insertError);
+        }
+        // Manter o default 'pt-ao'
+        return;
+      }
+
+      if (data.preferred_language) {
+        setSelectedId(data.preferred_language);
+      }
+      // Se preferred_language for null, manter o default 'pt-ao'
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (authLoading) return;
+    if (!session?.user?.id) {
+      setLoading(false);
+      return;
+    }
+    loadSettings(session.user.id);
+  }, [authLoading, session?.user?.id, loadSettings]);
+
+  const handleSelect = async (lang: (typeof LANGUAGES)[number]) => {
+    if (!session?.user?.id || saving) return;
+
+    setSelectedId(lang.id);
+    setSaving(true);
+
+    try {
+      const { error } = await supabase
+        .from('user_settings')
+        .upsert(
+          {
+            user_id: session.user.id,
+            preferred_language: lang.id,
+            updated_at: new Date().toISOString(),
+          },
+          { onConflict: 'user_id' }
+        );
+
+      if (error) {
+        console.error('Erro ao guardar idioma:', error);
+      }
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <SafeArea>
@@ -41,7 +119,11 @@ export default function LanguageSettingsScreen() {
         </View>
 
         <View className="w-9 h-9 rounded-full bg-indigo-50 items-center justify-center">
-          <Globe size={20} color="#4F46E5" strokeWidth={2.5} />
+          {loading ? (
+            <ActivityIndicator size="small" color="#4F46E5" />
+          ) : (
+            <Globe size={20} color="#4F46E5" strokeWidth={2.5} />
+          )}
         </View>
       </View>
 
@@ -55,7 +137,8 @@ export default function LanguageSettingsScreen() {
             return (
               <TouchableOpacity
                 key={lang.id}
-                onPress={() => setSelectedId(lang.id)}
+                onPress={() => handleSelect(lang)}
+                disabled={loading}
                 className="flex-row items-center justify-between p-4 border-b border-slate-100 last:border-b-0 active:bg-slate-50"
               >
                 <View className="flex-row items-center gap-3 flex-1">

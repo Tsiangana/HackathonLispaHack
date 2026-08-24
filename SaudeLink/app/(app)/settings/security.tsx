@@ -1,25 +1,184 @@
 import { router } from 'expo-router';
 import { ArrowLeft, Check, KeyRound, Lock, ShieldCheck, Smartphone } from 'lucide-react-native';
-import { useState } from 'react';
-import { ScrollView, StatusBar, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { useCallback, useEffect, useState } from 'react';
+import { ActivityIndicator, ScrollView, StatusBar, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 import { SafeArea } from '@/components/layout/SafeArea';
+import { useAuth } from '@/context/AuthContext';
+import { supabase } from '@/lib/supabase';
 
 export default function SecuritySettingsScreen() {
+  const { session, loading: authLoading } = useAuth();
+
   const [currentPass, setCurrentPass] = useState('');
   const [newPass, setNewPass] = useState('');
   const [confirmPass, setConfirmPass] = useState('');
-  const [biometricsEnabled, setBiometricsEnabled] = useState(true);
-  const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
-  const [savedSuccess, setSavedSuccess] = useState(false);
 
-  const handleSavePassword = () => {
-    if (newPass && newPass === confirmPass) {
-      setSavedSuccess(true);
+  const [biometricsEnabled, setBiometricsEnabled] = useState(false);
+  const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
+
+  const [loading, setLoading] = useState(true);
+  const [savingBiometric, setSavingBiometric] = useState(false);
+  const [savingTwoFactor, setSavingTwoFactor] = useState(false);
+  const [savingPassword, setSavingPassword] = useState(false);
+
+  const [savedSuccess, setSavedSuccess] = useState(false);
+  const [error, setError] = useState('');
+
+  const loadSettings = useCallback(async (userId: string) => {
+    try {
+      setLoading(true);
+
+      const { data, error: fetchError } = await supabase
+        .from('user_settings')
+        .select('biometric_enabled, two_factor_enabled')
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      if (fetchError) {
+        console.error('Erro ao carregar definições de segurança:', fetchError);
+        return;
+      }
+
+      if (!data) {
+        const { error: insertError } = await supabase
+          .from('user_settings')
+          .insert({ user_id: userId });
+
+        if (insertError) {
+          console.error('Erro ao criar user_settings:', insertError);
+        }
+        return;
+      }
+
+      setBiometricsEnabled(data.biometric_enabled ?? false);
+      setTwoFactorEnabled(data.two_factor_enabled ?? false);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (authLoading) return;
+    if (!session?.user?.id) {
+      setLoading(false);
+      return;
+    }
+    loadSettings(session.user.id);
+  }, [authLoading, session?.user?.id, loadSettings]);
+
+  const handleBiometricToggle = async (value: boolean) => {
+    if (!session?.user?.id || savingBiometric) return;
+
+    setBiometricsEnabled(value);
+    setSavingBiometric(true);
+
+    try {
+      const { error: upsertError } = await supabase
+        .from('user_settings')
+        .upsert(
+          {
+            user_id: session.user.id,
+            biometric_enabled: value,
+            updated_at: new Date().toISOString(),
+          },
+          { onConflict: 'user_id' }
+        );
+
+      if (upsertError) {
+        console.error('Erro ao guardar preferência de biometria:', upsertError);
+        setBiometricsEnabled(!value); // reverter em caso de erro
+      }
+    } finally {
+      setSavingBiometric(false);
+    }
+  };
+
+  const handleTwoFactorToggle = async (value: boolean) => {
+    if (!session?.user?.id || savingTwoFactor) return;
+
+    setTwoFactorEnabled(value);
+    setSavingTwoFactor(true);
+
+    try {
+      const { error: upsertError } = await supabase
+        .from('user_settings')
+        .upsert(
+          {
+            user_id: session.user.id,
+            two_factor_enabled: value,
+            updated_at: new Date().toISOString(),
+          },
+          { onConflict: 'user_id' }
+        );
+
+      if (upsertError) {
+        console.error('Erro ao guardar preferência de 2FA:', upsertError);
+        setTwoFactorEnabled(!value); // reverter em caso de erro
+      }
+    } finally {
+      setSavingTwoFactor(false);
+    }
+  };
+
+  const handleSavePassword = async () => {
+    setError('');
+    setSavedSuccess(false);
+
+    if (!currentPass.trim()) {
+      setError('Introduz a palavra-passe atual.');
+      return;
+    }
+    if (!newPass.trim()) {
+      setError('Introduz a nova palavra-passe.');
+      return;
+    }
+    if (newPass !== confirmPass) {
+      setError('A nova palavra-passe e a confirmação não coincidem.');
+      return;
+    }
+    if (newPass.length < 6) {
+      setError('A nova palavra-passe deve ter pelo menos 6 caracteres.');
+      return;
+    }
+    if (!session?.user?.email) {
+      setError('Sessão inválida. Inicia sessão novamente.');
+      return;
+    }
+
+    setSavingPassword(true);
+
+    try {
+      // Reautenticar com a palavra-passe atual
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: session.user.email,
+        password: currentPass,
+      });
+
+      if (signInError) {
+        setError('Palavra-passe atual incorreta.');
+        return;
+      }
+
+      // Atualizar para a nova palavra-passe
+      const { error: updateError } = await supabase.auth.updateUser({
+        password: newPass,
+      });
+
+      if (updateError) {
+        console.error('Erro ao atualizar palavra-passe:', updateError);
+        setError('Não foi possível atualizar a palavra-passe. Tenta novamente.');
+        return;
+      }
+
+      // Sucesso: limpar campos e mostrar mensagem
       setCurrentPass('');
       setNewPass('');
       setConfirmPass('');
+      setSavedSuccess(true);
       setTimeout(() => setSavedSuccess(false), 3000);
+    } finally {
+      setSavingPassword(false);
     }
   };
 
@@ -38,7 +197,7 @@ export default function SecuritySettingsScreen() {
           </TouchableOpacity>
           <View>
             <Text className="text-xl font-nunito-extrabold text-slate-900">
-              Segurança & Acesso
+              Segurança &amp; Acesso
             </Text>
             <Text className="text-xs font-nunito text-slate-500">
               Proteção da conta e credenciais
@@ -47,7 +206,11 @@ export default function SecuritySettingsScreen() {
         </View>
 
         <View className="w-9 h-9 rounded-full bg-slate-100 items-center justify-center">
-          <Lock size={20} color="#0F172A" strokeWidth={2.5} />
+          {loading ? (
+            <ActivityIndicator size="small" color="#64748B" />
+          ) : (
+            <Lock size={20} color="#0F172A" strokeWidth={2.5} />
+          )}
         </View>
       </View>
 
@@ -66,6 +229,12 @@ export default function SecuritySettingsScreen() {
           </View>
         )}
 
+        {error ? (
+          <View className="bg-red-50 border border-red-200 rounded-2xl p-4">
+            <Text className="text-sm font-nunito-bold text-red-700">{error}</Text>
+          </View>
+        ) : null}
+
         {/* ── Biometria & 2FA ── */}
         <View className="bg-white rounded-3xl border border-slate-200/80 overflow-hidden shadow-xs">
           <View className="flex-row items-center justify-between p-4 border-b border-slate-100">
@@ -83,12 +252,17 @@ export default function SecuritySettingsScreen() {
               </View>
             </View>
 
-            <Switch
-              value={biometricsEnabled}
-              onValueChange={setBiometricsEnabled}
-              trackColor={{ false: '#E2E8F0', true: '#D9232E' }}
-              thumbColor="#FFFFFF"
-            />
+            {savingBiometric ? (
+              <ActivityIndicator size="small" color="#D9232E" />
+            ) : (
+              <Switch
+                value={biometricsEnabled}
+                onValueChange={handleBiometricToggle}
+                disabled={loading}
+                trackColor={{ false: '#E2E8F0', true: '#D9232E' }}
+                thumbColor="#FFFFFF"
+              />
+            )}
           </View>
 
           <View className="flex-row items-center justify-between p-4">
@@ -106,12 +280,17 @@ export default function SecuritySettingsScreen() {
               </View>
             </View>
 
-            <Switch
-              value={twoFactorEnabled}
-              onValueChange={setTwoFactorEnabled}
-              trackColor={{ false: '#E2E8F0', true: '#D9232E' }}
-              thumbColor="#FFFFFF"
-            />
+            {savingTwoFactor ? (
+              <ActivityIndicator size="small" color="#D9232E" />
+            ) : (
+              <Switch
+                value={twoFactorEnabled}
+                onValueChange={handleTwoFactorToggle}
+                disabled={loading}
+                trackColor={{ false: '#E2E8F0', true: '#D9232E' }}
+                thumbColor="#FFFFFF"
+              />
+            )}
           </View>
         </View>
 
@@ -132,6 +311,7 @@ export default function SecuritySettingsScreen() {
               secureTextEntry
               placeholder="••••••••"
               placeholderTextColor="#94A3B8"
+              editable={!savingPassword}
               className="bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm font-nunito text-slate-900"
             />
           </View>
@@ -144,6 +324,7 @@ export default function SecuritySettingsScreen() {
               secureTextEntry
               placeholder="••••••••"
               placeholderTextColor="#94A3B8"
+              editable={!savingPassword}
               className="bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm font-nunito text-slate-900"
             />
           </View>
@@ -156,19 +337,27 @@ export default function SecuritySettingsScreen() {
               secureTextEntry
               placeholder="••••••••"
               placeholderTextColor="#94A3B8"
+              editable={!savingPassword}
               className="bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm font-nunito text-slate-900"
             />
           </View>
 
           <TouchableOpacity
             onPress={handleSavePassword}
+            disabled={savingPassword}
             className="w-full bg-slate-900 rounded-full flex-row items-center justify-center gap-2 active:opacity-90 mt-2"
             style={{ height: 48 }}
           >
-            <Check size={16} color="#FFFFFF" strokeWidth={2.5} />
-            <Text className="text-sm font-nunito-extrabold text-white">
-              Atualizar Palavra-passe
-            </Text>
+            {savingPassword ? (
+              <ActivityIndicator size="small" color="#FFFFFF" />
+            ) : (
+              <>
+                <Check size={16} color="#FFFFFF" strokeWidth={2.5} />
+                <Text className="text-sm font-nunito-extrabold text-white">
+                  Atualizar Palavra-passe
+                </Text>
+              </>
+            )}
           </TouchableOpacity>
         </View>
       </ScrollView>

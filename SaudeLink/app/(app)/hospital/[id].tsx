@@ -16,7 +16,7 @@ import { Hospital } from '@/types/hospital';
 import { formatDistance, formatRating } from '@/utils/format';
 
 export default function HospitalDetailsScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, data: hospitalDataString } = useLocalSearchParams<{ id: string; data?: string }>();
   const [hospital, setHospital] = useState<Hospital | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
@@ -26,6 +26,17 @@ export default function HospitalDetailsScreen() {
       setNotFound(true);
       setIsLoading(false);
       return;
+    }
+
+    if (hospitalDataString) {
+      try {
+        const parsed = JSON.parse(hospitalDataString);
+        setHospital(parsed);
+        setIsLoading(false);
+        return;
+      } catch (err) {
+        console.error('[HospitalDetails] Failed to parse hospital data:', err);
+      }
     }
 
     let isMounted = true;
@@ -53,7 +64,7 @@ export default function HospitalDetailsScreen() {
     return () => {
       isMounted = false;
     };
-  }, [id]);
+  }, [id, hospitalDataString]);
 
   if (isLoading) {
     return (

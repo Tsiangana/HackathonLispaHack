@@ -43,6 +43,16 @@ export function HospitalCard({ hospital, compact, onPress }: HospitalCardProps) 
     return card;
   }
 
-  return <Link href={`/(app)/hospital/${hospital.id}`} asChild>{card}</Link>;
+  return (
+    <Link 
+      href={{
+        pathname: `/(app)/hospital/${hospital.id}`,
+        params: { data: JSON.stringify(hospital) }
+      }} 
+      asChild
+    >
+      {card}
+    </Link>
+  );
 }
 

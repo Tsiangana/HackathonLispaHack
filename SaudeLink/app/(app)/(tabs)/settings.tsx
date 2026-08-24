@@ -17,7 +17,7 @@ import {
   ShieldCheck,
   User,
 } from 'lucide-react-native';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import {
   Pressable,
   ScrollView,
@@ -27,8 +27,11 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 
 import { SafeArea } from '@/components/layout/SafeArea';
+import { useAuth } from '@/context/AuthContext';
+import { supabase } from '@/lib/supabase';
 
 interface SettingRowProps {
   icon: typeof User;
@@ -88,11 +91,62 @@ function SettingItem({
   );
 }
 
-import { supabase } from '@/lib/supabase';
+function getInitials(name: string) {
+  const value = name.trim();
+
+  if (!value) {
+    return 'U';
+  }
+
+  const parts = value.split(/\s+/);
+
+  if (parts.length === 1) {
+    return parts[0].substring(0, 2).toUpperCase();
+  }
+
+  return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
+}
 
 export default function SettingsScreen() {
+  const { session } = useAuth();
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [sosLocationEnabled, setSosLocationEnabled] = useState(true);
+  const [fullName, setFullName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [isVerified, setIsVerified] = useState(false);
+
+  const loadProfile = useCallback(async () => {
+    if (!session?.user?.id) {
+      return;
+    }
+
+    setEmail(session.user.email ?? '');
+
+    try {
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('full_name, phone, is_verified')
+        .eq('id', session.user.id)
+        .single();
+
+      if (error) {
+        throw error;
+      }
+
+      setFullName(profile.full_name ?? '');
+      setPhone(profile.phone ?? '');
+      setIsVerified(Boolean(profile.is_verified));
+    } catch (error) {
+      console.error('Erro ao carregar perfil:', error);
+    }
+  }, [session?.user?.id, session?.user?.email]);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadProfile();
+    }, [loadProfile]),
+  );
 
   const handleLogout = async () => {
     try {
@@ -134,10 +188,14 @@ export default function SettingsScreen() {
           </View>
         </View>
 
-        <View className="bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200/60 flex-row items-center gap-1">
-          <CheckCircle2 size={12} color="#16A34A" strokeWidth={2.5} />
-          <Text className="text-[11px] font-nunito-bold text-emerald-700">Verificado</Text>
-        </View>
+        {isVerified ? (
+          <View className="bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200/60 flex-row items-center gap-1">
+            <CheckCircle2 size={12} color="#16A34A" strokeWidth={2.5} />
+            <Text className="text-[11px] font-nunito-bold text-emerald-700">Verificado</Text>
+          </View>
+        ) : (
+          <View className="w-9 h-9" />
+        )}
       </View>
 
       <ScrollView
@@ -149,25 +207,29 @@ export default function SettingsScreen() {
           <View className="flex-row items-center gap-4 flex-1">
             <View className="relative">
               <View className="w-16 h-16 rounded-full bg-brand-red items-center justify-center border-2 border-white shadow-xs">
-                <Text className="text-xl font-nunito-extrabold text-white">AP</Text>
+                <Text className="text-xl font-nunito-extrabold text-white">{getInitials(fullName)}</Text>
               </View>
-              <View className="absolute bottom-0 right-0 w-5 h-5 rounded-full bg-emerald-500 border-2 border-white items-center justify-center">
-                <CheckCircle2 size={10} color="#FFFFFF" strokeWidth={3} />
-              </View>
+              {isVerified ? (
+                <View className="absolute bottom-0 right-0 w-5 h-5 rounded-full bg-emerald-500 border-2 border-white items-center justify-center">
+                  <CheckCircle2 size={10} color="#FFFFFF" strokeWidth={3} />
+                </View>
+              ) : null}
             </View>
 
             <View className="flex-1">
               <View className="flex-row items-center gap-1.5">
                 <Text className="text-lg font-nunito-extrabold text-slate-900" numberOfLines={1}>
-                  Ana Paulo
+                  {fullName || 'O teu perfil'}
                 </Text>
               </View>
               <Text className="text-xs font-nunito text-slate-500 mt-0.5" numberOfLines={1}>
-                ana.paulo@saudelink.app
+                {email}
               </Text>
-              <Text className="text-xs font-nunito-bold text-slate-400 mt-0.5">
-                +244 923 000 100
-              </Text>
+              {phone ? (
+                <Text className="text-xs font-nunito-bold text-slate-400 mt-0.5">
+                  {phone}
+                </Text>
+              ) : null}
             </View>
           </View>
 

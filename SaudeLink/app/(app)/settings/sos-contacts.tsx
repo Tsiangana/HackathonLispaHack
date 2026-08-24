@@ -1,43 +1,115 @@
 import { router } from 'expo-router';
-import { ArrowLeft, Check, PhoneCall, Plus, ShieldAlert, UserCheck } from 'lucide-react-native';
-import { useState } from 'react';
-import { ScrollView, StatusBar, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ArrowLeft, Check, PhoneCall, Plus, ShieldAlert, Trash2, UserCheck } from 'lucide-react-native';
+import { useCallback, useEffect, useState } from 'react';
+import { ActivityIndicator, ScrollView, StatusBar, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 import { SafeArea } from '@/components/layout/SafeArea';
+import { useAuth } from '@/context/AuthContext';
+import { supabase } from '@/lib/supabase';
 
-interface Contact {
+type EmergencyContact = {
   id: string;
+  user_id: string;
   name: string;
-  relation: string;
+  relation: string | null;
   phone: string;
-}
+  created_at?: string;
+  updated_at?: string;
+};
 
 export default function SosContactsScreen() {
-  const [contacts, setContacts] = useState<Contact[]>([
-    { id: '1', name: 'Carlos Paulo', relation: 'Irmão', phone: '+244 924 111 222' },
-    { id: '2', name: 'Dra. Maria Santos', relation: 'Médica de Família', phone: '+244 912 345 678' },
-  ]);
+  const { session, loading: authLoading } = useAuth();
+
+  const [contacts, setContacts] = useState<EmergencyContact[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
 
   const [name, setName] = useState('');
   const [relation, setRelation] = useState('');
   const [phone, setPhone] = useState('');
   const [showAddForm, setShowAddForm] = useState(false);
 
-  const handleAdd = () => {
-    if (name.trim() && phone.trim()) {
-      setContacts([
-        ...contacts,
-        {
-          id: Date.now().toString(),
+  const loadContacts = useCallback(async (userId: string) => {
+    try {
+      setLoading(true);
+
+      const { data, error } = await supabase
+        .from('emergency_contacts')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: true });
+
+      if (error) {
+        console.error('Erro ao carregar contactos SOS:', error);
+        return;
+      }
+
+      setContacts(data ?? []);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (authLoading) return;
+    if (!session?.user?.id) {
+      setLoading(false);
+      return;
+    }
+    loadContacts(session.user.id);
+  }, [authLoading, session?.user?.id, loadContacts]);
+
+  const handleAdd = async () => {
+    if (!name.trim() || !phone.trim()) return;
+    if (!session?.user?.id || saving) return;
+
+    setSaving(true);
+
+    try {
+      const { data, error } = await supabase
+        .from('emergency_contacts')
+        .insert({
+          user_id: session.user.id,
           name: name.trim(),
           relation: relation.trim() || 'Familiar / Amigo',
           phone: phone.trim(),
-        },
-      ]);
+        })
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Erro ao adicionar contacto SOS:', error);
+        return;
+      }
+
+      setContacts((prev) => [...prev, data]);
       setName('');
       setRelation('');
       setPhone('');
       setShowAddForm(false);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDelete = async (contact: EmergencyContact) => {
+    if (!session?.user?.id) return;
+
+    try {
+      const { error } = await supabase
+        .from('emergency_contacts')
+        .delete()
+        .eq('id', contact.id)
+        .eq('user_id', session.user.id);
+
+      if (error) {
+        console.error('Erro ao eliminar contacto SOS:', error);
+        return;
+      }
+
+      setContacts((prev) => prev.filter((c) => c.id !== contact.id));
+    } catch (err) {
+      console.error('Erro inesperado ao eliminar contacto SOS:', err);
     }
   };
 
@@ -65,7 +137,11 @@ export default function SosContactsScreen() {
         </View>
 
         <View className="w-9 h-9 rounded-full bg-emerald-50 items-center justify-center">
-          <PhoneCall size={20} color="#16A34A" strokeWidth={2.5} />
+          {loading ? (
+            <ActivityIndicator size="small" color="#16A34A" />
+          ) : (
+            <PhoneCall size={20} color="#16A34A" strokeWidth={2.5} />
+          )}
         </View>
       </View>
 
@@ -103,6 +179,13 @@ export default function SosContactsScreen() {
                   </Text>
                 </View>
               </View>
+
+              <TouchableOpacity
+                onPress={() => handleDelete(contact)}
+                className="w-9 h-9 rounded-full bg-red-50 items-center justify-center active:bg-red-100 ml-2"
+              >
+                <Trash2 size={16} color="#DC2626" strokeWidth={2} />
+              </TouchableOpacity>
             </View>
           ))}
         </View>
@@ -119,6 +202,7 @@ export default function SosContactsScreen() {
               onChangeText={setName}
               placeholder="Nome Completo"
               placeholderTextColor="#94A3B8"
+              editable={!saving}
               className="bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm font-nunito text-slate-900"
             />
             <TextInput
@@ -126,6 +210,7 @@ export default function SosContactsScreen() {
               onChangeText={setRelation}
               placeholder="Parentesco (ex: Pai, Esposa, Amigo...)"
               placeholderTextColor="#94A3B8"
+              editable={!saving}
               className="bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm font-nunito text-slate-900"
             />
             <TextInput
@@ -134,12 +219,14 @@ export default function SosContactsScreen() {
               placeholder="Número de Telefone (+244...)"
               keyboardType="phone-pad"
               placeholderTextColor="#94A3B8"
+              editable={!saving}
               className="bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm font-nunito text-slate-900"
             />
 
             <View className="flex-row gap-3 pt-2">
               <TouchableOpacity
                 onPress={() => setShowAddForm(false)}
+                disabled={saving}
                 className="flex-1 bg-slate-100 rounded-full py-3 items-center justify-center active:bg-slate-200"
               >
                 <Text className="text-sm font-nunito-extrabold text-slate-700">Cancelar</Text>
@@ -147,10 +234,17 @@ export default function SosContactsScreen() {
 
               <TouchableOpacity
                 onPress={handleAdd}
+                disabled={saving}
                 className="flex-1 bg-brand-red rounded-full py-3 items-center justify-center active:opacity-90 flex-row gap-2"
               >
-                <Check size={16} color="#FFFFFF" strokeWidth={2.5} />
-                <Text className="text-sm font-nunito-extrabold text-white">Adicionar</Text>
+                {saving ? (
+                  <ActivityIndicator size="small" color="#FFFFFF" />
+                ) : (
+                  <>
+                    <Check size={16} color="#FFFFFF" strokeWidth={2.5} />
+                    <Text className="text-sm font-nunito-extrabold text-white">Adicionar</Text>
+                  </>
+                )}
               </TouchableOpacity>
             </View>
           </View>

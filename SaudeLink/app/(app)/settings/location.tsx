@@ -1,9 +1,11 @@
 import { router } from 'expo-router';
 import { ArrowLeft, Check, MapPin, Search } from 'lucide-react-native';
-import { useState } from 'react';
-import { ScrollView, StatusBar, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { useCallback, useEffect, useState } from 'react';
+import { ActivityIndicator, ScrollView, StatusBar, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 import { SafeArea } from '@/components/layout/SafeArea';
+import { useAuth } from '@/context/AuthContext';
+import { supabase } from '@/lib/supabase';
 
 const ANGOLA_LOCATIONS = [
   { id: '1', province: 'Luanda', municipality: 'Ingombota / Baixa de Luanda' },
@@ -20,8 +22,90 @@ const ANGOLA_LOCATIONS = [
 ];
 
 export default function LocationSettingsScreen() {
-  const [selectedId, setSelectedId] = useState('1');
+  const { session, loading: authLoading } = useAuth();
+
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [search, setSearch] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  const loadSettings = useCallback(async (userId: string) => {
+    try {
+      setLoading(true);
+
+      const { data, error } = await supabase
+        .from('user_settings')
+        .select('location_province, location_municipality')
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      if (error) {
+        console.error('Erro ao carregar localização:', error);
+        return;
+      }
+
+      if (!data) {
+        // Criar linha vazia para o utilizador
+        const { error: insertError } = await supabase
+          .from('user_settings')
+          .insert({ user_id: userId });
+
+        if (insertError) {
+          console.error('Erro ao criar user_settings:', insertError);
+        }
+        return;
+      }
+
+      if (data.location_province && data.location_municipality) {
+        const match = ANGOLA_LOCATIONS.find(
+          (loc) =>
+            loc.province === data.location_province &&
+            loc.municipality === data.location_municipality
+        );
+        if (match) {
+          setSelectedId(match.id);
+        }
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (authLoading) return;
+    if (!session?.user?.id) {
+      setLoading(false);
+      return;
+    }
+    loadSettings(session.user.id);
+  }, [authLoading, session?.user?.id, loadSettings]);
+
+  const handleSelect = async (loc: (typeof ANGOLA_LOCATIONS)[number]) => {
+    if (!session?.user?.id || saving) return;
+
+    setSelectedId(loc.id);
+    setSaving(true);
+
+    try {
+      const { error } = await supabase
+        .from('user_settings')
+        .upsert(
+          {
+            user_id: session.user.id,
+            location_province: loc.province,
+            location_municipality: loc.municipality,
+            updated_at: new Date().toISOString(),
+          },
+          { onConflict: 'user_id' }
+        );
+
+      if (error) {
+        console.error('Erro ao guardar localização:', error);
+      }
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const filteredLocations = ANGOLA_LOCATIONS.filter(
     (loc) =>
@@ -53,7 +137,11 @@ export default function LocationSettingsScreen() {
         </View>
 
         <View className="w-9 h-9 rounded-full bg-slate-100 items-center justify-center">
-          <MapPin size={20} color="#0F172A" strokeWidth={2.5} />
+          {loading ? (
+            <ActivityIndicator size="small" color="#64748B" />
+          ) : (
+            <MapPin size={20} color="#0F172A" strokeWidth={2.5} />
+          )}
         </View>
       </View>
 
@@ -80,7 +168,8 @@ export default function LocationSettingsScreen() {
             return (
               <TouchableOpacity
                 key={loc.id}
-                onPress={() => setSelectedId(loc.id)}
+                onPress={() => handleSelect(loc)}
+                disabled={loading}
                 className="flex-row items-center justify-between p-4 border-b border-slate-100 last:border-b-0 active:bg-slate-50"
               >
                 <View className="flex-row items-center gap-3 flex-1">

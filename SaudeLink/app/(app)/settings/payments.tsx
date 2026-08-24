@@ -1,59 +1,113 @@
 import { router } from 'expo-router';
-import { ArrowLeft, CreditCard, Plus, ShieldCheck, Wallet } from 'lucide-react-native';
-import { useState } from 'react';
-import { ScrollView, StatusBar, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ArrowLeft, CreditCard, Plus, ShieldCheck, Trash2, Wallet } from 'lucide-react-native';
+import { useCallback, useEffect, useState } from 'react';
+import { ActivityIndicator, ScrollView, StatusBar, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 import { SafeArea } from '@/components/layout/SafeArea';
+import { useAuth } from '@/context/AuthContext';
+import { supabase } from '@/lib/supabase';
 
-interface PaymentMethod {
+type PaymentMethod = {
   id: string;
-  type: 'mcx' | 'card' | 'iban';
+  user_id: string;
   title: string;
-  subtitle: string;
-  isDefault?: boolean;
-}
+  subtitle: string | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+};
 
 export default function PaymentsSettingsScreen() {
-  const [methods, setMethods] = useState<PaymentMethod[]>([
-    {
-      id: '1',
-      type: 'mcx',
-      title: 'Multicaixa Express',
-      subtitle: 'Associado ao +244 923 000 100',
-      isDefault: true,
-    },
-    {
-      id: '2',
-      type: 'card',
-      title: 'Cartão Visa',
-      subtitle: '•••• •••• •••• 4821 (Expira 08/28)',
-    },
-    {
-      id: '3',
-      type: 'iban',
-      title: 'IBAN para Reembolso',
-      subtitle: 'AO06.0040.0000.1234.5678.1019.4',
-    },
-  ]);
+  const { session, loading: authLoading } = useAuth();
+
+  const [methods, setMethods] = useState<PaymentMethod[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
 
   const [showAddForm, setShowAddForm] = useState(false);
   const [newTitle, setNewTitle] = useState('');
   const [newSubtitle, setNewSubtitle] = useState('');
 
-  const handleAdd = () => {
-    if (newTitle.trim()) {
-      setMethods([
-        ...methods,
-        {
-          id: Date.now().toString(),
-          type: 'card',
+  const loadMethods = useCallback(async (userId: string) => {
+    try {
+      setLoading(true);
+
+      const { data, error } = await supabase
+        .from('payment_methods')
+        .select('id, user_id, title, subtitle, is_active, created_at, updated_at')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: true });
+
+      if (error) {
+        console.error('Erro ao carregar métodos de pagamento:', error);
+        return;
+      }
+
+      setMethods(data ?? []);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (authLoading) return;
+    if (!session?.user?.id) {
+      setLoading(false);
+      return;
+    }
+    loadMethods(session.user.id);
+  }, [authLoading, session?.user?.id, loadMethods]);
+
+  const handleAdd = async () => {
+    if (!newTitle.trim()) return;
+    if (!session?.user?.id || saving) return;
+
+    setSaving(true);
+
+    try {
+      const { data, error } = await supabase
+        .from('payment_methods')
+        .insert({
+          user_id: session.user.id,
           title: newTitle.trim(),
-          subtitle: newSubtitle.trim() || 'Cartão de Débito / Crédito',
-        },
-      ]);
+          subtitle: newSubtitle.trim() || null,
+          is_active: true,
+        })
+        .select('id, user_id, title, subtitle, is_active, created_at, updated_at')
+        .single();
+
+      if (error) {
+        console.error('Erro ao adicionar método de pagamento:', error);
+        return;
+      }
+
+      setMethods((prev) => [...prev, data]);
       setNewTitle('');
       setNewSubtitle('');
       setShowAddForm(false);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDelete = async (paymentId: string) => {
+    if (!session?.user?.id) return;
+
+    try {
+      const { error } = await supabase
+        .from('payment_methods')
+        .delete()
+        .eq('id', paymentId)
+        .eq('user_id', session.user.id);
+
+      if (error) {
+        console.error('Erro ao eliminar método de pagamento:', error);
+        return;
+      }
+
+      setMethods((prev) => prev.filter((m) => m.id !== paymentId));
+    } catch (err) {
+      console.error('Erro inesperado ao eliminar método de pagamento:', err);
     }
   };
 
@@ -81,7 +135,11 @@ export default function PaymentsSettingsScreen() {
         </View>
 
         <View className="w-9 h-9 rounded-full bg-emerald-50 items-center justify-center">
-          <CreditCard size={20} color="#059669" strokeWidth={2.5} />
+          {loading ? (
+            <ActivityIndicator size="small" color="#059669" />
+          ) : (
+            <CreditCard size={20} color="#059669" strokeWidth={2.5} />
+          )}
         </View>
       </View>
 
@@ -108,21 +166,23 @@ export default function PaymentsSettingsScreen() {
                   <Wallet size={20} color="#FFFFFF" strokeWidth={2} />
                 </View>
                 <View className="flex-1">
-                  <View className="flex-row items-center gap-2">
-                    <Text className="text-base font-nunito-extrabold text-slate-900">
-                      {method.title}
-                    </Text>
-                    {method.isDefault && (
-                      <View className="bg-emerald-100 px-2 py-0.5 rounded-full">
-                        <Text className="text-[10px] font-nunito-bold text-emerald-800">Padrão</Text>
-                      </View>
-                    )}
-                  </View>
-                  <Text className="text-xs font-nunito text-slate-500 mt-0.5" numberOfLines={1}>
-                    {method.subtitle}
+                  <Text className="text-base font-nunito-extrabold text-slate-900">
+                    {method.title}
                   </Text>
+                  {method.subtitle ? (
+                    <Text className="text-xs font-nunito text-slate-500 mt-0.5" numberOfLines={1}>
+                      {method.subtitle}
+                    </Text>
+                  ) : null}
                 </View>
               </View>
+
+              <TouchableOpacity
+                onPress={() => handleDelete(method.id)}
+                className="w-9 h-9 rounded-full bg-red-50 items-center justify-center active:bg-red-100 ml-2"
+              >
+                <Trash2 size={16} color="#DC2626" strokeWidth={2} />
+              </TouchableOpacity>
             </View>
           ))}
         </View>
@@ -139,6 +199,7 @@ export default function PaymentsSettingsScreen() {
               onChangeText={setNewTitle}
               placeholder="Ex: Cartão Multicaixa / Visa"
               placeholderTextColor="#94A3B8"
+              editable={!saving}
               className="bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm font-nunito text-slate-900"
             />
             <TextInput
@@ -146,12 +207,14 @@ export default function PaymentsSettingsScreen() {
               onChangeText={setNewSubtitle}
               placeholder="Número ou IBAN da Conta"
               placeholderTextColor="#94A3B8"
+              editable={!saving}
               className="bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm font-nunito text-slate-900"
             />
 
             <View className="flex-row gap-3 pt-2">
               <TouchableOpacity
                 onPress={() => setShowAddForm(false)}
+                disabled={saving}
                 className="flex-1 bg-slate-100 rounded-full py-3 items-center justify-center active:bg-slate-200"
               >
                 <Text className="text-sm font-nunito-extrabold text-slate-700">Cancelar</Text>
@@ -159,9 +222,14 @@ export default function PaymentsSettingsScreen() {
 
               <TouchableOpacity
                 onPress={handleAdd}
+                disabled={saving}
                 className="flex-1 bg-brand-red rounded-full py-3 items-center justify-center active:opacity-90"
               >
-                <Text className="text-sm font-nunito-extrabold text-white">Guardar</Text>
+                {saving ? (
+                  <ActivityIndicator size="small" color="#FFFFFF" />
+                ) : (
+                  <Text className="text-sm font-nunito-extrabold text-white">Guardar</Text>
+                )}
               </TouchableOpacity>
             </View>
           </View>
