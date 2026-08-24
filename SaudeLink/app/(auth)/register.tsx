@@ -21,11 +21,14 @@ export default function RegisterScreen() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const [nameFocused, setNameFocused] = useState(false);
   const [emailFocused, setEmailFocused] = useState(false);
   const [passwordFocused, setPasswordFocused] = useState(false);
+  const [confirmPasswordFocused, setConfirmPasswordFocused] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -54,6 +57,11 @@ export default function RegisterScreen() {
 
     if (!password || password.length < 6) {
       setError('A password deve ter pelo menos 6 caracteres.');
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError('As palavras-passes não coincidem.');
       return;
     }
 
@@ -220,6 +228,46 @@ export default function RegisterScreen() {
                   className="p-1"
                 >
                   {showPassword ? (
+                    <EyeOff size={20} color={colors.textMuted} strokeWidth={2} />
+                  ) : (
+                    <Eye size={20} color={colors.textMuted} strokeWidth={2} />
+                  )}
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            {/* Confirm Password Field */}
+            <View>
+              <Text className="text-xs font-nunito-bold text-slate-500 mb-2 tracking-wider uppercase">
+                Confirmar Password
+              </Text>
+              <View
+                className={`flex-row items-center bg-white rounded-2xl border-[1.5px] px-4 h-14 ${confirmPasswordFocused ? 'border-brand-red' : 'border-slate-200'
+                  }`}
+              >
+                <Lock
+                  size={20}
+                  color={confirmPasswordFocused ? colors.primaryRed : colors.textMuted}
+                  strokeWidth={2}
+                />
+                <TextInput
+                  value={confirmPassword}
+                  onChangeText={(v) => {
+                    setConfirmPassword(v);
+                    if (error) setError('');
+                  }}
+                  secureTextEntry={!showConfirmPassword}
+                  onFocus={() => setConfirmPasswordFocused(true)}
+                  onBlur={() => setConfirmPasswordFocused(false)}
+                  placeholder="••••••••"
+                  placeholderTextColor={colors.textMuted}
+                  className="flex-1 ml-3 text-base font-nunito text-slate-900"
+                />
+                <TouchableOpacity
+                  onPress={() => setShowConfirmPassword((v) => !v)}
+                  className="p-1"
+                >
+                  {showConfirmPassword ? (
                     <EyeOff size={20} color={colors.textMuted} strokeWidth={2} />
                   ) : (
                     <Eye size={20} color={colors.textMuted} strokeWidth={2} />

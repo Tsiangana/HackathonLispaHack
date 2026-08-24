@@ -2,6 +2,9 @@ import { router } from 'expo-router';
 import {
   ArrowLeft,
   Edit3,
+  Eye,
+  EyeOff,
+  Lock,
   Mail,
 } from 'lucide-react-native';
 import { useEffect, useRef, useState } from 'react';
@@ -26,8 +29,13 @@ import { sendOtpCode, verifyOtpCode } from '@/services/otpService';
 export default function EmailLoginScreen() {
   const [step, setStep] = useState<1 | 2>(1);
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+
   const [emailFocused, setEmailFocused] = useState(false);
+  const [passwordFocused, setPasswordFocused] = useState(false);
   const [emailError, setEmailError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
   const [loadingEmail, setLoadingEmail] = useState(false);
 
   // OTP 6 digits state
@@ -96,12 +104,24 @@ export default function EmailLoginScreen() {
   };
 
   const handleContinueEmail = async () => {
+    let hasError = false;
+
     if (!email || !email.includes('@')) {
       setEmailError('Por favor insere um endereço de email válido.');
-      return;
+      hasError = true;
+    } else {
+      setEmailError('');
     }
 
-    setEmailError('');
+    if (!password || password.length < 6) {
+      setPasswordError('Por favor introduz a tua palavra-passe.');
+      hasError = true;
+    } else {
+      setPasswordError('');
+    }
+
+    if (hasError) return;
+
     setLoadingEmail(true);
 
     try {
@@ -267,45 +287,97 @@ export default function EmailLoginScreen() {
                   </Text>
                 </View>
 
-                {/* Email Form */}
-                <View className="mb-8">
-                  <Text className="text-xs font-nunito-bold text-slate-500 mb-2 tracking-wider uppercase">
-                    Endereço de Email
-                  </Text>
-                  <View
-                    className={`flex-row items-center bg-white rounded-2xl border-[1.5px] px-4 h-14 ${emailError
-                      ? 'border-red-500'
-                      : emailFocused
-                        ? 'border-brand-red'
-                        : 'border-slate-200'
-                      }`}
-                  >
-                    <Mail
-                      size={20}
-                      color={emailFocused ? colors.primaryRed : colors.textMuted}
-                      strokeWidth={2}
-                    />
-                    <TextInput
-                      value={email}
-                      onChangeText={(v) => {
-                        setEmail(v);
-                        if (emailError) setEmailError('');
-                      }}
-                      keyboardType="email-address"
-                      autoCapitalize="none"
-                      autoCorrect={false}
-                      onFocus={() => setEmailFocused(true)}
-                      onBlur={() => setEmailFocused(false)}
-                      placeholder="o.teu@email.com"
-                      placeholderTextColor={colors.textMuted}
-                      className="flex-1 ml-3 text-base font-nunito text-slate-900"
-                    />
-                  </View>
-                  {emailError ? (
-                    <Text className="text-xs font-nunito-semibold text-red-500 mt-2 ml-1">
-                      {emailError}
+                {/* Email + Password Form */}
+                <View className="gap-4 mb-6">
+                  {/* Email Field */}
+                  <View>
+                    <Text className="text-xs font-nunito-bold text-slate-500 mb-2 tracking-wider uppercase">
+                      Endereço de Email
                     </Text>
-                  ) : null}
+                    <View
+                      className={`flex-row items-center bg-white rounded-2xl border-[1.5px] px-4 h-14 ${emailError
+                        ? 'border-red-500'
+                        : emailFocused
+                          ? 'border-brand-red'
+                          : 'border-slate-200'
+                        }`}
+                    >
+                      <Mail
+                        size={20}
+                        color={emailFocused ? colors.primaryRed : colors.textMuted}
+                        strokeWidth={2}
+                      />
+                      <TextInput
+                        value={email}
+                        onChangeText={(v) => {
+                          setEmail(v);
+                          if (emailError) setEmailError('');
+                        }}
+                        keyboardType="email-address"
+                        autoCapitalize="none"
+                        autoCorrect={false}
+                        onFocus={() => setEmailFocused(true)}
+                        onBlur={() => setEmailFocused(false)}
+                        placeholder="o.teu@email.com"
+                        placeholderTextColor={colors.textMuted}
+                        className="flex-1 ml-3 text-base font-nunito text-slate-900"
+                      />
+                    </View>
+                    {emailError ? (
+                      <Text className="text-xs font-nunito-semibold text-red-500 mt-2 ml-1">
+                        {emailError}
+                      </Text>
+                    ) : null}
+                  </View>
+
+                  {/* Password Field */}
+                  <View>
+                    <Text className="text-xs font-nunito-bold text-slate-500 mb-2 tracking-wider uppercase">
+                      Palavra-passe
+                    </Text>
+                    <View
+                      className={`flex-row items-center bg-white rounded-2xl border-[1.5px] px-4 h-14 ${passwordError
+                        ? 'border-red-500'
+                        : passwordFocused
+                          ? 'border-brand-red'
+                          : 'border-slate-200'
+                        }`}
+                    >
+                      <Lock
+                        size={20}
+                        color={passwordFocused ? colors.primaryRed : colors.textMuted}
+                        strokeWidth={2}
+                      />
+                      <TextInput
+                        value={password}
+                        onChangeText={(v) => {
+                          setPassword(v);
+                          if (passwordError) setPasswordError('');
+                        }}
+                        secureTextEntry={!showPassword}
+                        onFocus={() => setPasswordFocused(true)}
+                        onBlur={() => setPasswordFocused(false)}
+                        placeholder="••••••••"
+                        placeholderTextColor={colors.textMuted}
+                        className="flex-1 ml-3 text-base font-nunito text-slate-900"
+                      />
+                      <TouchableOpacity
+                        onPress={() => setShowPassword((v) => !v)}
+                        className="p-1"
+                      >
+                        {showPassword ? (
+                          <EyeOff size={20} color={colors.textMuted} strokeWidth={2} />
+                        ) : (
+                          <Eye size={20} color={colors.textMuted} strokeWidth={2} />
+                        )}
+                      </TouchableOpacity>
+                    </View>
+                    {passwordError ? (
+                      <Text className="text-xs font-nunito-semibold text-red-500 mt-2 ml-1">
+                        {passwordError}
+                      </Text>
+                    ) : null}
+                  </View>
                 </View>
 
                 {/* Submit Email Button */}

@@ -47,6 +47,70 @@ app.get('/health', (req, res) => {
   });
 });
 
+// OAuth Callback endpoint: receives Google/Supabase redirect and forwards to app deep link
+app.get('/auth/callback', (req, res) => {
+  res.send(`
+    <!DOCTYPE html>
+    <html lang="pt">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>SaúdeLink - Autenticação</title>
+        <style>
+          body {
+            font-family: system-ui, -apple-system, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #FAFAF8;
+            color: #0F172A;
+          }
+          .box {
+            background: #FFFFFF;
+            padding: 36px 28px;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            text-align: center;
+            max-width: 380px;
+            width: 90%;
+            border: 1px solid #E2E8F0;
+          }
+          h2 { color: #D9232E; margin: 0 0 8px 0; font-size: 24px; font-weight: 800; }
+          p { color: #64748B; font-size: 14px; margin: 0 0 24px 0; }
+          .btn {
+            display: inline-block;
+            background: #D9232E;
+            color: #FFFFFF;
+            padding: 12px 24px;
+            border-radius: 99px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 14px;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="box">
+          <h2>SaúdeLink</h2>
+          <p>Autenticação concluída com sucesso!<br>A redirecionar para a aplicação...</p>
+          <a id="app-link" href="#" class="btn">Abrir SaúdeLink</a>
+        </div>
+        <script>
+          (function() {
+            var hash = window.location.hash || '';
+            var search = window.location.search || '';
+            var deepLink = "saudelink://auth/callback" + search + hash;
+            document.getElementById('app-link').href = deepLink;
+            window.location.href = deepLink;
+          })();
+        </script>
+      </body>
+    </html>
+  `);
+});
+
 // Send 6-digit OTP endpoint
 app.post('/api/otp/send', async (req, res) => {
   const { email } = req.body;

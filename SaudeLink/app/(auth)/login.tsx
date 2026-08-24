@@ -147,37 +147,64 @@ export default function LoginScreen() {
   const [activeLoading, setActiveLoading] = useState<string | null>(null);
 
   const extractParamsFromUrl = (url: string) => {
-    const hash = url.split('#')[1];
-    if (!hash) return null;
-    return hash.split('&').reduce((acc, current) => {
-      const [key, value] = current.split('=');
-      acc[key] = value;
-      return acc;
-    }, {} as Record<string, string>);
+    const params: Record<string, string> = {};
+    const queryString = url.includes('?') ? url.split('?')[1].split('#')[0] : '';
+    const hashString = url.includes('#') ? url.split('#')[1] : '';
+
+    const parseString = (str: string) => {
+      if (!str) return;
+      str.split('&').forEach((pair) => {
+        const [key, value] = pair.split('=');
+        if (key && value) {
+          params[key] = decodeURIComponent(value);
+        }
+      });
+    };
+
+    parseString(queryString);
+    parseString(hashString);
+    return params;
   };
 
   const handleOAuthLogin = async (provider: Provider) => {
     try {
       setActiveLoading(provider);
-      const redirectUrl = Linking.createURL('/(auth)/login');
+      const vpsBaseUrl =
+        process.env.EXPO_PUBLIC_OTP_SERVICE_URL || 'http://207.180.238.15:4012';
+      const redirectUrl = `${vpsBaseUrl}/auth/callback`;
+
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
           redirectTo: redirectUrl,
+          skipBrowserRedirect: true,
         },
       });
 
       if (error) throw error;
 
       if (data?.url) {
-        const result = await WebBrowser.openAuthSessionAsync(data.url, redirectUrl);
+        const result = await WebBrowser.openAuthSessionAsync(data.url, 'saudelink://');
+
         if (result.type === 'success' && result.url) {
-          const tokens = extractParamsFromUrl(result.url);
-          if (tokens?.access_token && tokens?.refresh_token) {
-            await supabase.auth.setSession({
-              access_token: tokens.access_token,
-              refresh_token: tokens.refresh_token,
+          const params = extractParamsFromUrl(result.url);
+
+          if (params.access_token && params.refresh_token) {
+            const { error: sessionError } = await supabase.auth.setSession({
+              access_token: params.access_token,
+              refresh_token: params.refresh_token,
             });
+
+            if (!sessionError) {
+              router.replace('/(app)/(tabs)');
+              return;
+            }
+          } else if (params.code) {
+            const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(params.code);
+            if (!exchangeError) {
+              router.replace('/(app)/(tabs)');
+              return;
+            }
           }
         }
       }
