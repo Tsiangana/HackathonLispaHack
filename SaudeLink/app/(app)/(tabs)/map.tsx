@@ -2,6 +2,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { StatusBar, View } from 'react-native';
 
+import { AppLoadingScreen } from '@/components/common/AppLoadingScreen';
 import { YangoHospitalMap } from '@/components/map/YangoHospitalMap';
 import { useHospitalsState } from '@/features/hospitals/hooks/useHospitals';
 import { Hospital } from '@/types/hospital';
@@ -33,8 +34,16 @@ export default function MapScreen() {
     return realHospitals[0];
   }, [selectedHospital, hospitalIdParam, realHospitals]);
 
-  if (!activeSelectedHospital) {
-    return null;
+  if (isLoading || !activeSelectedHospital) {
+    return (
+      <AppLoadingScreen
+        message={
+          symptomParam
+            ? `A localizar hospital para ${symptomParam}...`
+            : 'A carregar unidades de saúde...'
+        }
+      />
+    );
   }
 
   return (

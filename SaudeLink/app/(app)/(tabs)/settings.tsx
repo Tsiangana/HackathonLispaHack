@@ -108,49 +108,26 @@ function getInitials(name: string) {
 }
 
 export default function SettingsScreen() {
-  const { session } = useAuth();
+  const { session, profile, refreshProfile } = useAuth();
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [sosLocationEnabled, setSosLocationEnabled] = useState(true);
-  const [fullName, setFullName] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-  const [isVerified, setIsVerified] = useState(false);
-
-  const loadProfile = useCallback(async () => {
-    if (!session?.user?.id) {
-      return;
-    }
-
-    setEmail(session.user.email ?? '');
-
-    try {
-      const { data: profile, error } = await supabase
-        .from('profiles')
-        .select('full_name, phone, is_verified')
-        .eq('id', session.user.id)
-        .single();
-
-      if (error) {
-        throw error;
-      }
-
-      setFullName(profile.full_name ?? '');
-      setPhone(profile.phone ?? '');
-      setIsVerified(Boolean(profile.is_verified));
-    } catch (error) {
-      console.error('Erro ao carregar perfil:', error);
-    }
-  }, [session?.user?.id, session?.user?.email]);
 
   useFocusEffect(
     useCallback(() => {
-      loadProfile();
-    }, [loadProfile]),
+      refreshProfile();
+    }, [refreshProfile]),
   );
+
+  const fullName = profile?.full_name || (session ? 'Utilizador' : 'Modo Emergência');
+  const email = session?.user?.email || 'Acesso rápido sem conta';
+  const phone = profile?.phone ?? '';
+  const isVerified = Boolean(profile?.is_verified);
 
   const handleLogout = async () => {
     try {
-      await supabase.auth.signOut();
+      if (session) {
+        await supabase.auth.signOut();
+      }
       router.replace('/(auth)/intro');
     } catch (error) {
       console.error('Erro ao terminar sessão:', error);
@@ -219,7 +196,7 @@ export default function SettingsScreen() {
             <View className="flex-1">
               <View className="flex-row items-center gap-1.5">
                 <Text className="text-lg font-nunito-extrabold text-slate-900" numberOfLines={1}>
-                  {fullName || 'O teu perfil'}
+                  {fullName}
                 </Text>
               </View>
               <Text className="text-xs font-nunito text-slate-500 mt-0.5" numberOfLines={1}>
@@ -234,10 +211,12 @@ export default function SettingsScreen() {
           </View>
 
           <TouchableOpacity
-            onPress={() => router.push('/(app)/settings/profile')}
+            onPress={() => router.push(session ? '/(app)/settings/profile' : '/(auth)/login')}
             className="px-3.5 py-2 bg-slate-100 rounded-full active:bg-slate-200"
           >
-            <Text className="text-xs font-nunito-extrabold text-slate-700">Editar</Text>
+            <Text className="text-xs font-nunito-extrabold text-slate-700">
+              {session ? 'Editar' : 'Entrar'}
+            </Text>
           </TouchableOpacity>
         </View>
 

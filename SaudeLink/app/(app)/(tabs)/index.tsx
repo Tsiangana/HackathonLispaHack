@@ -7,9 +7,12 @@ import {
   Bone,
   Brain,
   Building2,
+  ChevronRight,
+  Crown,
   FlaskConical,
   Heart,
   HeartPulse,
+  Lock,
   MapPin,
   Stethoscope,
   Syringe,
@@ -176,6 +179,41 @@ export default function HomeScreen() {
         {/* ── Header ── */}
         <View className="px-5 pt-2">
           <HomeHeader />
+        </View>
+
+        {/* ── PRO Upgrade Teaser Card ── */}
+        <View className="px-5 mt-4">
+          <Pressable
+            onPress={() => router.push('/(app)/upgrade')}
+            className="active:opacity-90"
+          >
+            <View
+              className="rounded-3xl p-4 border border-amber-200/80 overflow-hidden"
+              style={{ backgroundColor: '#FFFBEB' }}
+            >
+              {/* Top row */}
+              <View className="flex-row items-center justify-between">
+                <View className="flex-row items-center gap-2">
+                  <View className="w-9 h-9 rounded-xl bg-amber-100 items-center justify-center">
+                    <Crown size={18} color="#D97706" strokeWidth={2} />
+                  </View>
+                  <View>
+                    <Text className="text-sm font-nunito-extrabold text-slate-900">
+                      SaúdeLink PRO
+                    </Text>
+                    <Text className="text-xs font-nunito text-slate-500">
+                      Acesso completo a todas as funcionalidades
+                    </Text>
+                  </View>
+                </View>
+                <View className="flex-row items-center gap-1 bg-amber-500 rounded-full px-2.5 py-1">
+                  <Text className="text-xs font-nunito-extrabold text-white">Ver mais</Text>
+                  <ChevronRight size={11} color="#FFFFFF" strokeWidth={3} />
+                </View>
+              </View>
+
+            </View>
+          </Pressable>
         </View>
 
         {/* ── Hero Hospital Card with image background ── */}

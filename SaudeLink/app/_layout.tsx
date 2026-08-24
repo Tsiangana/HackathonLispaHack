@@ -30,6 +30,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import 'react-native-reanimated';
 
 import '../global.css';
+import { AppLoadingScreen } from '@/components/common/AppLoadingScreen';
 import { colors } from '@/constants/colors';
 import { AuthProvider, useAuth } from '@/context/AuthContext';
 
@@ -69,7 +70,7 @@ export default function RootLayout() {
   };
 
   if (!fontsLoaded) {
-    return null;
+    return <AppLoadingScreen message="A carregar fontes..." />;
   }
 
   return (

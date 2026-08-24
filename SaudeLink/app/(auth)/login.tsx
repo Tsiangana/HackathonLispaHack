@@ -172,6 +172,7 @@ export default function LoginScreen() {
       const vpsBaseUrl =
         process.env.EXPO_PUBLIC_OTP_SERVICE_URL || 'http://207.180.238.15:4012';
       const redirectUrl = `${vpsBaseUrl}/auth/callback`;
+      console.log('[OAuth] Requested redirectUrl:', redirectUrl);
 
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider,
@@ -182,6 +183,8 @@ export default function LoginScreen() {
       });
 
       if (error) throw error;
+
+      console.log('[OAuth] Supabase Auth URL:', data?.url);
 
       if (data?.url) {
         const result = await WebBrowser.openAuthSessionAsync(data.url, 'saudelink://');

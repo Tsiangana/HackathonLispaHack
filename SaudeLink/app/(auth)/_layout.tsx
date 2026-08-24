@@ -1,12 +1,13 @@
 import { Redirect, Stack } from 'expo-router';
 
+import { AppLoadingScreen } from '@/components/common/AppLoadingScreen';
 import { useAuth } from '@/context/AuthContext';
 
 export default function AuthLayout() {
   const { session, loading } = useAuth();
 
   if (loading) {
-    return null;
+    return <AppLoadingScreen message="A verificar sessão..." />;
   }
 
   if (session) {

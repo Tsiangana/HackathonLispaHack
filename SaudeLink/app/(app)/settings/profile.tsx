@@ -58,7 +58,7 @@ function parseBirthDateForSave(value: string): { ok: true; date: string | null }
 }
 
 export default function ProfileSettingsScreen() {
-  const { session, loading: authLoading } = useAuth();
+  const { session, loading: authLoading, refreshProfile } = useAuth();
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -183,6 +183,7 @@ export default function ProfileSettingsScreen() {
       setPhone(trimmedPhone);
       setNif(trimmedNif);
       setBirthDate(convertedBirthDate ? isoDateToDisplay(convertedBirthDate) : '');
+      await refreshProfile();
       setSavedSuccess(true);
 
       setTimeout(() => {
