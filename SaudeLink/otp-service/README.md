@@ -7,6 +7,7 @@ Este é um microserviço leve em Node.js / Express projetado para gerar e valida
 ## 🛠️ Requisitos no Portainer / VPS
 
 - **IP da VPS**: `207.180.238.15`
+- **Porta**: `4012`
 - **Portainer**: Ativo
 - **Traefik**: Rede externa `traefik-net` configurada
 
@@ -34,6 +35,7 @@ otp-service/
 3. Nome da Stack: `saudelink-otp`.
 4. Escolha **Repository** ou **Web editor** e cole o conteúdo de `docker-compose.yml`.
 5. Adicione as variáveis de ambiente na secção **Environment variables**:
+   - `PORT`: `4012`
    - `SMTP_HOST`: ex: `smtp.gmail.com`
    - `SMTP_PORT`: ex: `587`
    - `SMTP_USER`: seu email de envio
@@ -80,9 +82,10 @@ docker compose up -d --build
 
 ## 📲 Ligar o App Mobile ao Microserviço
 
-No ficheiro `.env` do projeto mobile Expo SaúdeLink, adicione a seguinte variável apontando para a sua VPS:
+No ficheiro `.env` do projeto mobile Expo SaúdeLink, adicione a seguinte variável apontando para a sua VPS na porta 4012:
 
 ```env
-EXPO_PUBLIC_OTP_SERVICE_URL=http://207.180.238.15:3000
+EXPO_PUBLIC_OTP_SERVICE_URL=http://207.180.238.15:4012
 ```
 *(ou com domínio se configurado via Traefik: `https://otp.saudelink.ao`)*
+

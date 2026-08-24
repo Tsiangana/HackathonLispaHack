@@ -14,7 +14,7 @@ Podes usar **Gmail**, **SendGrid**, **Resend**, **Hostinger/cPanel** ou o SMTP d
 
 ```env
 # Porta onde o servidor vai rodar dentro do container
-PORT=3000
+PORT=4012
 
 # Host do servidor SMTP (Exemplos abaixo)
 SMTP_HOST=smtp.gmail.com
@@ -73,7 +73,7 @@ services:
     container_name: saudelink-otp-service
     restart: always
     environment:
-      - PORT=3000
+      - PORT=4012
       - SMTP_HOST=${SMTP_HOST:-smtp.gmail.com}
       - SMTP_PORT=${SMTP_PORT:-587}
       - SMTP_SECURE=${SMTP_SECURE:-false}
@@ -81,12 +81,12 @@ services:
       - SMTP_PASS=${SMTP_PASS}
       - SMTP_FROM=${SMTP_FROM:-"SaúdeLink" <no-reply@saudelink.ao>}
     ports:
-      - "3000:3000"
+      - "4012:4012"
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.saudelink-otp.rule=Host(`207.180.238.15`) || Host(`otp.saudelink.ao`)"
       - "traefik.http.routers.saudelink-otp.entrypoints=web,websecure"
-      - "traefik.http.services.saudelink-otp.loadbalancer.server.port=3000"
+      - "traefik.http.services.saudelink-otp.loadbalancer.server.port=4012"
 ```
 
 5. Na secção **Environment variables** no Portainer, adiciona:
@@ -135,7 +135,7 @@ No terminal da tua máquina ou no navegador, testa os seguintes comandos:
 
 ### Teste de Health Check:
 ```bash
-curl http://207.180.238.15:3000/health
+curl http://207.180.238.15:4012/health
 ```
 **Resposta esperada:**
 ```json
@@ -144,14 +144,14 @@ curl http://207.180.238.15:3000/health
 
 ### Teste de Envio de Código (OTP 6 dígitos):
 ```bash
-curl -X POST http://207.180.238.15:3000/api/otp/send \
+curl -X POST http://207.180.238.15:4012/api/otp/send \
   -H "Content-Type: application/json" \
   -d '{"email":"teu.email@exemplo.com"}'
 ```
 
 ### Teste de Verificação do Código:
 ```bash
-curl -X POST http://207.180.238.15:3000/api/otp/verify \
+curl -X POST http://207.180.238.15:4012/api/otp/verify \
   -H "Content-Type: application/json" \
   -d '{"email":"teu.email@exemplo.com", "code":"123456"}'
 ```
@@ -163,7 +163,7 @@ curl -X POST http://207.180.238.15:3000/api/otp/verify \
 No projeto Expo do SaúdeLink, abra o ficheiro `.env` e adicione o endereço da VPS:
 
 ```env
-EXPO_PUBLIC_OTP_SERVICE_URL=http://207.180.238.15:3000
+EXPO_PUBLIC_OTP_SERVICE_URL=http://207.180.238.15:4012
 ```
 
 *(Se configuraste um domínio via Traefik como `otp.saudelink.ao`, usa `https://otp.saudelink.ao`)*.
