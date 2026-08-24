@@ -87,6 +87,12 @@ services:
       - "traefik.http.routers.saudelink-otp.rule=Host(`207.180.238.15`) || Host(`otp.saudelink.ao`)"
       - "traefik.http.routers.saudelink-otp.entrypoints=web,websecure"
       - "traefik.http.services.saudelink-otp.loadbalancer.server.port=4012"
+    networks:
+      - default
+
+networks:
+  default:
+    name: saudelink-otp-net
 ```
 
 5. Na secção **Environment variables** no Portainer, adiciona:
